@@ -1,0 +1,1486 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix datatype: <http://qudt.org/vocab/datatype/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dtype: <http://www.linkedmodel.org/schema/dtype#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix vaem: <http://www.linkedmodel.org/schema/vaem#> .
+
+<http://qudt.org/$$QUDT_VERSION$$/vocab/datatype>
+  a owl:Ontology ;
+  owl:imports <http://qudt.org/$$QUDT_VERSION$$/schema/facade/qudt> ;
+  owl:imports <http://qudt.org/$$QUDT_VERSION$$/vocab/constant> ;
+  owl:imports <http://www.linkedmodel.org/schema/dtype> ;
+  owl:imports <http://www.linkedmodel.org/schema/vaem> ;
+  owl:versionIRI <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "QUDT Vocabulary of Datatypes v$$QUDT_VERSION$$" ;
+  vaem:hasGraphMetadata vaem:GMD_QUDT_DATATYPE ;
+  vaem:hasGraphRole vaem:VocabularyGraph .
+
+dcterms:contributor
+  a owl:AnnotationProperty ;
+  rdfs:label "contributor" ;
+  rdfs:range xsd:string .
+
+dcterms:creator
+  a owl:AnnotationProperty ;
+  rdfs:label "creator" ;
+  rdfs:range xsd:string .
+
+dcterms:description
+  a owl:AnnotationProperty ;
+  rdfs:label "description" ;
+  rdfs:range xsd:string .
+
+dcterms:rights
+  a owl:AnnotationProperty ;
+  rdfs:label "rights" ;
+  rdfs:range xsd:string .
+
+dcterms:subject
+  a owl:AnnotationProperty ;
+  rdfs:label "subject" ;
+  rdfs:range xsd:string .
+
+dcterms:title
+  a owl:AnnotationProperty ;
+  rdfs:label "title" ;
+  rdfs:range xsd:string .
+
+datatype:ALPHANUMERIC
+  a qudt:CharacterType ;
+  dtype:code 106 ;
+  dtype:literal "alphanumeric" ;
+  qudt:bits 8 ;
+  qudt:bytes 1 ;
+  qudt:id "T001-00" ;
+  qudt:rdfsDatatype xsd:byte ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "ALPHANUMERIC" .
+
+datatype:BOOLEAN
+  a qudt:BooleanType ;
+  dcterms:description """
+  <p>In computer science, the Boolean or logical data type is a data type,
+   having two values (usually denoted true and false), intended to represent the truth values of logic and Boolean algebra. 
+  The Boolean data type is the primary result of conditional statements,
+   which allow different actions and change control flow depending on whether a programmer-specified boolean condition evaluates to true or false.
+  </p>
+  """^^rdf:HTML ;
+  dtype:code 1 ;
+  dtype:literal "boolean" ;
+  prov:wasInfluencedBy "http://msdn.microsoft.com/en-us/library/aa275635(v=sql.80).aspx"^^xsd:anyURI ;
+  prov:wasInfluencedBy "https://en.wikipedia.org/wiki/Boolean%5Fdata%5Ftype"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://en.wikipedia.org/wiki/Boolean%5Fdata%5Ftype> ;
+  prov:wasInfluencedBy <http://msdn.microsoft.com/en-us/library/aa275635(v=sql.80).aspx> ;
+  qudt:ansiSQLName "BOOLEAN" ;
+  qudt:encoding datatype:BooleanEncoding ;
+  qudt:id "T000-01" ;
+  qudt:javaName "boolean" ;
+  qudt:jsName "Boolean()" ;
+  qudt:microsoftSQLServerName "bit" ;
+  qudt:mySQLName "BOOL" ;
+  qudt:mySQLName "BOOLEAN" ;
+  qudt:mySQLName "TINYINT(1)" ;
+  qudt:odbcName "SQL_BIT" ;
+  qudt:oleDBName "DBTYPE_BOOL" ;
+  qudt:oracleSQLName "RAW(1)" ;
+  qudt:protocolBuffersName "bool" ;
+  qudt:pythonName "bool" ;
+  qudt:rdfsDatatype xsd:boolean ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "BOOLEAN" .
+
+datatype:BYTE
+  a qudt:SignedShortIntegerType ;
+  dcterms:description """
+  <p>The byte data type is an 8-bit signed two's complement integer. 
+  It has a minimum value of -128 and a maximum value of 127 (inclusive). 
+  The byte data type can be useful for saving memory in large arrays, where the memory savings actually matters. 
+  They can also be used in place of int where their limits help to clarify your code; the fact that a variable's range is limited can serve as a form of documentation.
+  </p>
+  """^^rdf:HTML ;
+  dtype:code "800" ;
+  dtype:literal "byte" ;
+  prov:wasInfluencedBy "http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html> ;
+  qudt:abbreviation "SI8" ;
+  qudt:bytes 1 ;
+  qudt:cName "Byte" ;
+  qudt:encoding datatype:OctetEncoding ;
+  qudt:id "T002-01" ;
+  qudt:maxInclusive 127 ;
+  qudt:minInclusive -128 ;
+  qudt:rdfsDatatype xsd:byte ;
+  qudt:signedness datatype:Signed ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Byte" .
+
+datatype:BigEndian
+  a qudt:EndianType ;
+  dcterms:description "A big-endian machine stores the most significant byte first."^^rdf:HTML ;
+  dtype:code 1 ;
+  dtype:literal "big" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Big Endian" .
+
+datatype:BitAligned
+  a qudt:AlignmentType ;
+  dcterms:description "Alignment at a bit level."^^rdf:HTML ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit aligned" .
+
+datatype:BitEncoding
+  a qudt:BitEncodingType ;
+  qudt:bits 1 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Encoding" .
+
+datatype:BitField01
+  a qudt:BitField ;
+  dtype:literal "B1" ;
+  prov:wasInfluencedBy "http://dev.mysql.com/doc/refman/5.0/en/bit-type.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/bit-type.html> ;
+  qudt:abbreviation "bf1" ;
+  qudt:bits 1 ;
+  qudt:id "T010-01" ;
+  qudt:mySQLName "BIT(1)" ;
+  qudt:rdfsDatatype datatype:BitField01 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field of 1 bit" .
+
+datatype:BitField02
+  a qudt:BitField ;
+  dtype:code 182 ;
+  dtype:literal "B2" ;
+  prov:wasInfluencedBy "http://dev.mysql.com/doc/refman/5.0/en/bit-type.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/bit-type.html> ;
+  qudt:abbreviation "bf2" ;
+  qudt:bits 2 ;
+  qudt:id "T010-02" ;
+  qudt:mySQLName "BIT(2)" ;
+  qudt:rdfsDatatype datatype:BitField02 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field of 2 bits" .
+
+datatype:BitField03
+  a qudt:BitField ;
+  dtype:code 183 ;
+  dtype:literal "B3" ;
+  prov:wasInfluencedBy "http://dev.mysql.com/doc/refman/5.0/en/bit-type.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/bit-type.html> ;
+  qudt:abbreviation "bf3" ;
+  qudt:bits 3 ;
+  qudt:id "T010-03" ;
+  qudt:mySQLName "BIT(3)" ;
+  qudt:rdfsDatatype datatype:BitField03 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field of 3 bits" .
+
+datatype:BitField04
+  a qudt:BitField ;
+  dtype:code 184 ;
+  dtype:literal "B4" ;
+  prov:wasInfluencedBy "http://dev.mysql.com/doc/refman/5.0/en/bit-type.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/bit-type.html> ;
+  qudt:abbreviation "bf4" ;
+  qudt:bits 4 ;
+  qudt:id "T010-04" ;
+  qudt:mySQLName "BIT(4)" ;
+  qudt:rdfsDatatype datatype:BitField04 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field of 4 bits" .
+
+datatype:BitField05
+  a qudt:BitField ;
+  dtype:code 185 ;
+  dtype:literal "B5" ;
+  prov:wasInfluencedBy "http://dev.mysql.com/doc/refman/5.0/en/bit-type.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/bit-type.html> ;
+  qudt:abbreviation "bf5" ;
+  qudt:bits 5 ;
+  qudt:id "T010-05" ;
+  qudt:mySQLName "BIT(5)" ;
+  qudt:rdfsDatatype datatype:BitField05 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field of 5 bits" .
+
+datatype:BitField06
+  a qudt:BitField ;
+  dtype:code 186 ;
+  dtype:literal "B6" ;
+  prov:wasInfluencedBy "http://dev.mysql.com/doc/refman/5.0/en/bit-type.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/bit-type.html> ;
+  qudt:abbreviation "bf6" ;
+  qudt:bits 6 ;
+  qudt:id "T010-06" ;
+  qudt:mySQLName "BIT(6)" ;
+  qudt:rdfsDatatype datatype:BitField06 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field of 6 bits" .
+
+datatype:BitField07
+  a qudt:BitField ;
+  dtype:code 187 ;
+  dtype:literal "B7" ;
+  prov:wasInfluencedBy "http://dev.mysql.com/doc/refman/5.0/en/bit-type.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/bit-type.html> ;
+  qudt:abbreviation "bf7" ;
+  qudt:bits 7 ;
+  qudt:id "T010-07" ;
+  qudt:mySQLName "BIT(7)" ;
+  qudt:rdfsDatatype datatype:BitField07 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field of 7 bits" .
+
+datatype:BitField08
+  a qudt:BitField ;
+  dtype:code 188 ;
+  dtype:literal "B8" ;
+  prov:wasInfluencedBy "http://dev.mysql.com/doc/refman/5.0/en/bit-type.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/bit-type.html> ;
+  qudt:abbreviation "bf8" ;
+  qudt:bits 8 ;
+  qudt:id "T010-08" ;
+  qudt:mySQLName "BIT(8)" ;
+  qudt:rdfsDatatype datatype:BitField08 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field of 8 bits" .
+
+datatype:BitField09
+  a qudt:BitField ;
+  dtype:code 189 ;
+  dtype:literal "B9" ;
+  prov:wasInfluencedBy "http://dev.mysql.com/doc/refman/5.0/en/bit-type.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/bit-type.html> ;
+  qudt:abbreviation "bf9" ;
+  qudt:bits 9 ;
+  qudt:id "T010-09" ;
+  qudt:mySQLName "BIT(9)" ;
+  qudt:rdfsDatatype datatype:BitField09 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field of 9 bits" .
+
+datatype:BitField10
+  a qudt:BitField ;
+  dtype:code 190 ;
+  dtype:literal "B10" ;
+  prov:wasInfluencedBy "http://dev.mysql.com/doc/refman/5.0/en/bit-type.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/bit-type.html> ;
+  qudt:abbreviation "bf10" ;
+  qudt:bitOrder datatype:BigEndian ;
+  qudt:bits 10 ;
+  qudt:byteOrder datatype:BigEndian ;
+  qudt:id "T010-02" ;
+  qudt:mySQLName "BIT(10)" ;
+  qudt:rdfsDatatype datatype:BitField10 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field Of 10 Bits" .
+
+datatype:BitField11
+  a qudt:BitField ;
+  dtype:code 191 ;
+  dtype:literal "B11" ;
+  prov:wasInfluencedBy "http://dev.mysql.com/doc/refman/5.0/en/bit-type.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/bit-type.html> ;
+  qudt:abbreviation "bf11" ;
+  qudt:bits 11 ;
+  qudt:id "T010-11" ;
+  qudt:mySQLName "BIT(11)" ;
+  qudt:rdfsDatatype datatype:BitField11 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field Of 11 Bits" .
+
+datatype:BitField12
+  a qudt:BitField ;
+  dtype:literal "B12" ;
+  qudt:abbreviation "bf12" ;
+  qudt:bits 12 ;
+  qudt:mySQLName "BIT(12)" ;
+  qudt:rdfsDatatype datatype:BitField12 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Bit Field of 12 bits" .
+
+datatype:BooleanEncoding
+  a qudt:BooleanEncodingType ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Boolean Encoding" .
+
+datatype:ByColumn
+  a qudt:ArrayDataOrder ;
+  dtype:literal "byColumn" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "By Column" .
+
+datatype:ByLeftMostIndex
+  a qudt:ArrayDataOrder ;
+  dtype:literal "byLeftMostIndex" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "By Left Most Index" .
+
+datatype:ByRow
+  a qudt:ArrayDataOrder ;
+  dtype:literal "byRow" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "By row" .
+
+datatype:ByteAligned
+  a qudt:AlignmentType ;
+  dcterms:description "Alignment of a field at a byte boundary."^^rdf:HTML ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Byte aligned" .
+
+datatype:CDF
+  a qudt:MultiDimensionalDataFormat ;
+  dcterms:description "CDF (Common Data format), a data format for storing and manipulating scalar and multidimensional data in a platform and discipline independent manner, making interoperability between applications and tools easier. CDF provides device independent view of the CDF data model by software programming interface insulting developers from actual physical file format. CDF was developed by NASA, and is described at http://cdf.gsfc.nasa.gov/."^^rdf:HTML ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Common Data Format (CDF)" .
+
+datatype:CFN_ConcatenateMatrixRows
+  a qudt:CompositionFunction ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Concatenate Matrix Rows" .
+
+datatype:CHAR
+  a qudt:CharacterType ;
+  dtype:literal "char" ;
+  qudt:bits 8 ;
+  qudt:bytes 1 ;
+  qudt:encoding datatype:CharEncoding ;
+  qudt:id "T001-01" ;
+  qudt:rdfsDatatype xsd:byte ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "CHAR" .
+
+datatype:COLOR_AMBER
+  a qudt:ColorCue ;
+  dtype:literal "amber" ;
+  qudt:rgbCode "#FFBF00" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Amber Color" .
+
+datatype:COLOR_GREEN
+  a qudt:ColorCue ;
+  dtype:literal "green" ;
+  qudt:rgbCode "#008000" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Green color" .
+
+datatype:COLOR_ORANGE
+  a qudt:ColorCue ;
+  dtype:literal "orange" ;
+  qudt:rgbCode "#FFA500" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Orange color" .
+
+datatype:COLOR_RED
+  a qudt:ColorCue ;
+  dtype:literal "red" ;
+  qudt:rgbCode "#FF0000" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Red color" .
+
+datatype:COLOR_YELLOW
+  a qudt:ColorCue ;
+  dtype:literal "yellow" ;
+  qudt:rgbCode "#FFFF00" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Yellow color" .
+
+datatype:CT_COUNTABLY-INFINITE
+  a qudt:CardinalityType ;
+  dcterms:description """
+  A set of numbers is called countably infinite if there is a way to enumerate them.
+  Formally this is done with a bijection function that associates each number in the set with exactly one of the positive integers.
+  The set of all fractions is also countably infinite.
+  In other words, any set $X$ that has the same cardinality as the set of the natural numbers,
+   or $| X | \\; =  \\; | \\mathbb N | \\; = \\; \\aleph0$, is said to be a countably infinite set.
+  """^^qudt:LatexString ;
+  dtype:literal "countable" ;
+  qudt:informativeReference "http://www.math.vanderbilt.edu/~schectex/courses/infinity.pdf"^^xsd:anyURI ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Countably Infinite Cardinality Type" .
+
+datatype:CT_FINITE
+  a qudt:CardinalityType ;
+  dcterms:description """
+  Any set $X$ with cardinality less than that of the natural numbers, or
+  $$| X | \\; <  \\; | \\mathbb N | $$
+  is said to be a finite set.
+  """^^qudt:LatexString ;
+  dtype:literal "finite" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Finite Cardinality Type" .
+
+datatype:CT_UNCOUNTABLE
+  a qudt:CardinalityType ;
+  dcterms:description """
+  Any set with cardinality greater than that of the natural numbers, or
+  $$| X | \\; >  \\; | \\mathbb N | $$
+  
+  For example $| R| \\; =  \\;  c  \\; > |\\mathbb N |$, is said to be uncountable.
+  """^^qudt:LatexString ;
+  dtype:literal "uncountable" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Uncountable Cardinality Type" .
+
+datatype:CharEncoding
+  a qudt:BooleanEncodingType, qudt:CharEncodingType ;
+  qudt:bytes 1 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Char Encoding" .
+
+datatype:DATE
+  a qudt:DateStringType ;
+  dcterms:description """
+  <p>Provides the date expressed in year, month and day.
+  Expressed as "YYYY:MM:DD", where YYYY is a 4 digit year, MM is a 2 digit month and DD is a 2 digit day.
+  </p>
+  """^^rdf:HTML ;
+  dtype:code 255 ;
+  dtype:literal "date" ;
+  qudt:dimensionality 1 ;
+  qudt:id "T004-01" ;
+  qudt:rdfsDatatype xsd:date ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Date" .
+
+datatype:DATETIME
+  a qudt:DateStringType ;
+  dcterms:description "A time stamp encoded as a string 'YYYY-MM-DDThh:mm:ss[.dd]' or 'YYYY-DDDThh:mm:ss[.dd]', where 'YYYY' is the year, 'MM' is the two-digit month, 'DD' is the two-digit day, 'DDD' is the three digit day of year, 'T' is constant, 'hh:mm:ss[.dd]' is the UTC time in hours, minutes, seconds, and optional fractional seconds. As many 'd' characters to the right of the period as required may be used to obtain the required precision. All fields require leading zeros."^^rdf:HTML ;
+  dtype:literal "datetime" ;
+  qudt:dimensionality 1 ;
+  qudt:exactMatch datatype:UTC-DATETIME ;
+  qudt:rdfsDatatype xsd:dateTime ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Date Time" .
+
+datatype:DECIMAL
+  a qudt:NumericType ;
+  dtype:code 101 ;
+  dtype:literal "numeric" ;
+  qudt:ansiSQLName "DECIMAL(p,s)" ;
+  qudt:odbcName "SQL_DECIMAL(p,s)" ;
+  qudt:oracleSQLName "NUMBER(p,s)" ;
+  qudt:rdfsDatatype xsd:decimal ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Decimal" .
+
+datatype:DIGIT
+  a qudt:CharacterType ;
+  dtype:literal "digit" ;
+  qudt:bits 8 ;
+  qudt:bytes 1 ;
+  qudt:id "T001-02" ;
+  qudt:rdfsDatatype xsd:byte ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "DIGIT" .
+
+datatype:DoublePrecisionEncoding
+  a qudt:FloatingPointEncodingType ;
+  qudt:bytes 64 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Double Precision Encoding" .
+
+datatype:FALSE
+  a qudt:BooleanTypeEnumeratedValue ;
+  dtype:literal "false" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "False" .
+
+datatype:FLAG
+  a qudt:BooleanType ;
+  dtype:code 2 ;
+  dtype:literal "flag" ;
+  qudt:id "T000-02" ;
+  qudt:rdfsDatatype xsd:boolean ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "FLAG" .
+
+datatype:FLOAT-DP
+  a qudt:RealDoublePrecisionType ;
+  dcterms:description """
+  <p>A double precision floating point datatype. 
+  Numbers of this type are stored using 64 bits, they require more memory than numbers of type single, which use 32 bits. 
+  However, because they are stored with more bits, numbers of type double are represented to more precision than numbers of type single. 
+  The double-precision (or double) data type is represented according to IEEE Standard 754 for double precision. 
+  A value is formatted with bit-fields for sign, mantissa and exponent.
+  </p>
+  """^^rdf:HTML ;
+  dtype:code 405 ;
+  dtype:literal "double" ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/floating-point-types.html> ;
+  prov:wasInfluencedBy <http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html> ;
+  prov:wasInfluencedBy <http://en.wikipedia.org/wiki/Floating_point> ;
+  prov:wasInfluencedBy <http://en.wikipedia.org/wiki/IEEE_floating_point> ;
+  prov:wasInfluencedBy <http://msdn.microsoft.com/en-us/library/aa275635(v=sql.80).aspx> ;
+  prov:wasInfluencedBy <http://www.mathworks.com/help/matlab/matlab_prog/floating-point-numbers.html> ;
+  qudt:abbreviation "F64" ;
+  qudt:ansiSQLName "DOUPLE PRECISION" ;
+  qudt:base 2 ;
+  qudt:bits 64 ;
+  qudt:bytes 8 ;
+  qudt:encoding datatype:DoublePrecisionEncoding ;
+  qudt:exactMatch datatype:FLOAT_IEEE754-BINARY64 ;
+  qudt:id "T006-03" ;
+  qudt:javaName "double" ;
+  qudt:jsName "double" ;
+  qudt:matlabName "double" ;
+  qudt:maxExclusive "(1-2^{-53}) \\times 2^{1024}" ;
+  qudt:maxExponent 1023 ;
+  qudt:maxMantissa 9007199254740991 ;
+  qudt:microsoftSQLServerName "float" ;
+  qudt:minExclusive "-(1-2^{-53}) \\times 2^{1024}" ;
+  qudt:minMantissa -9007199254740991 ;
+  qudt:mySQLName "DOUBLE" ;
+  qudt:odbcName "SQL_DOUBLE" ;
+  qudt:oleDBName "DBTYPE_R8" ;
+  qudt:oracleSQLName "FLOAT(49)" ;
+  qudt:rdfsDatatype xsd:double ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Double Precision Real" .
+
+datatype:FLOAT-SP
+  a qudt:RealSinglePrecisionType ;
+  dcterms:description """
+  <p>
+  A single precision real is a 32 bit signed floating point representation. 
+  Numbers of type single are stored using 32 bits, they require less memory than numbers of type double, which use 64 bits. 
+  However, because they are stored with fewer bits, numbers of type single are represented to less precision than numbers of type double.
+  </p>
+  """^^rdf:HTML ;
+  dtype:literal "single" ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/floating-point-types.html> ;
+  prov:wasInfluencedBy <http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html> ;
+  prov:wasInfluencedBy <http://en.wikipedia.org/wiki/Floating_point> ;
+  prov:wasInfluencedBy <http://msdn.microsoft.com/en-us/library/aa275635(v=sql.80).aspx> ;
+  prov:wasInfluencedBy <http://www-01.ibm.com/support/docview.wss?uid=swg21325957> ;
+  prov:wasInfluencedBy <http://www.mathworks.com/help/matlab/matlab_prog/floating-point-numbers.html> ;
+  prov:wasInfluencedBy <http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10764/apb.htm> ;
+  qudt:ansiSQLName "FLOAT" ;
+  qudt:bits 32 ;
+  qudt:bytes 4 ;
+  qudt:cName "float" ;
+  qudt:encoding datatype:SinglePrecisionRealEncoding ;
+  qudt:id "T006-01" ;
+  qudt:javaName "float" ;
+  qudt:jsName "float" ;
+  qudt:matlabName "single" ;
+  qudt:maxExclusive "$(2-2^{-23}) \\times 2^127$" ;
+  qudt:maxExponent 23 ;
+  qudt:microsoftSQLServerName "real" ;
+  qudt:minExclusive "-(2-2^{-23}) \\times 2^{127}" ;
+  qudt:mySQLName "FLOAT" ;
+  qudt:odbcName "SQL_FLOAT" ;
+  qudt:oleDBName "DBTYPE_R4" ;
+  qudt:oracleSQLName "FLOAT(23)" ;
+  qudt:rdfsDatatype xsd:float ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Single Precision Real" .
+
+datatype:FLOAT_IEEE754-BINARY64
+  a qudt:RealDoublePrecisionType ;
+  dcterms:description """
+  <p>The IEEE-754 floating point datatype is a technical standard established in 1985 by the Institute of Electrical and Electronics Engineers (IEEE). 
+  Many hardware floating point units use the IEEE 754 standard.
+  </p>"""^^rdf:HTML ;
+  prov:wasInfluencedBy <http://en.wikipedia.org/wiki/IEEE_floating_point> ;
+  qudt:base 2 ;
+  qudt:bits 64 ;
+  qudt:exactMatch datatype:FLOAT-DP ;
+  qudt:id "T006-05" ;
+  qudt:maxExponent 970 ;
+  qudt:maxMantissa 9007199254740991 ;
+  qudt:minMantissa -9007199254740991 ;
+  qudt:rdfsDatatype xsd:double ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "IEEE754 BINARY64" .
+
+datatype:HDF5
+  a qudt:MultiDimensionalDataFormat ;
+  dcterms:description """
+  <p>The Hierarchical Data Format (HDF) is a common data format and a collection of application programming libraries developed at the NSCA primarily for the scientific community and for the exchange of scientific datasets. 
+  A commonly-used version of HDF is HDF5 which offers a simple data model and application interfaces for encoding and exchanging data without the added burden of defining mappings to the underlying machine representations.
+  </p>
+  """^^rdf:HTML ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "HDF5" .
+
+datatype:HDF6
+  a qudt:MultiDimensionalDataFormat ;
+  dcterms:description "A \"Hierarchical Data Format\"." ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "HDF6" .
+
+datatype:HEXBINARY
+  a qudt:HexBinaryType ;
+  dtype:code 803 ;
+  dtype:literal "hexbinary" ;
+  qudt:dimensionality 1 ;
+  qudt:rdfsDatatype qudt:hexbinary ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "HEXBINARY" .
+
+datatype:HighToLow
+  a qudt:MemoryOrderType ;
+  dtype:literal "high_to_low" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "High to Low" .
+
+datatype:IEEE754_1985RealEncoding
+  a qudt:FloatingPointEncodingType ;
+  qudt:bytes 32 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "IEEE 754 1985 Real Encoding" .
+
+datatype:INTEGER
+  a qudt:SignedIntegerType ;
+  dcterms:description """
+  <p>An <em>Integer</em> is an XML Schema Definition (XSD) datatype that represents arbitrary-precision whole numbers
+   (positive, negative, or zero) without fractional or decimal components. 
+  It is derived from xsd:decimal by restricting values to integers only..
+  </p>"""^^rdf:HTML ;
+  dtype:code 104 ;
+  dtype:literal "SI" ;
+  qudt:abbreviation "SI" ;
+  qudt:ansiSQLName "INT" ;
+  qudt:bits 16 ;
+  qudt:bytes 2 ;
+  qudt:encoding datatype:ShortSignedIntegerEncoding ;
+  qudt:id "T002-03" ;
+  qudt:javaName "integer" ;
+  qudt:jsName "integer" ;
+  qudt:matlabName "int" ;
+  qudt:microsoftSQLServerName "int" ;
+  qudt:mySQLName "INT" ;
+  qudt:rdfsDatatype xsd:integer ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Integer" .
+
+datatype:ISO8601-UTCDateTime-BasicFormat
+  a qudt:DateTimeStringEncodingType ;
+  qudt:allowedPattern "[0-9]{4}[0-9]{2}[0-9]{2}T[0-9]{2}[0-9]{2}[0-9]{2}.[0-9]+Z" ;
+  qudt:allowedPattern "[0-9]{4}[0-9]{2}[0-9]{2}T[0-9]{2}[0-9]{2}[0-9]{2}Z" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "ISO 8601 UTC Date Time - Basic Format" .
+
+datatype:InterpolatedTABLE
+  a qudt:InterpolatedTable ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Interpolated table" .
+
+datatype:Konopliv2001
+  a qudt:Citation ;
+  dcterms:description """
+  <p>"Recent Gravity Models as a Result of the Lunar Prospector Mission", A. S. Konopliv, S. W. Asmar, E. Carranza, W. L. Sjogren,
+   and D. N. Yuan, Academic Press, Icarus 150, 1-18 (2001).
+  </p>"""^^rdf:HTML ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Konopliv2001" .
+
+datatype:LETTER
+  a qudt:CharacterType ;
+  dtype:literal "letter" ;
+  qudt:bits 8 ;
+  qudt:bytes 1 ;
+  qudt:id "T001-03" ;
+  qudt:rdfsDatatype xsd:byte ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "LETTER" .
+
+datatype:LittleEndian
+  a qudt:EndianType ;
+  dcterms:description "A little-endian machine stores the least significant byte first."^^rdf:HTML ;
+  dtype:code 2 ;
+  dtype:literal "little" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Little Endian" .
+
+datatype:LongSignedIntegerEncoding
+  a qudt:IntegerEncodingType ;
+  qudt:bytes 8 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Long Signed Integer Encoding" .
+
+datatype:LongUnsignedIntegerEncoding
+  a qudt:IntegerEncodingType ;
+  qudt:bytes 8 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Long Unsigned Integer Encoding" .
+
+datatype:LowToHigh
+  a qudt:MemoryOrderType ;
+  dtype:literal "low_to_high" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Low to High" .
+
+datatype:Major
+  a qudt:MajorMinorType ;
+  dtype:code 2 ;
+  dtype:literal "major" ;
+  dtype:order "2"^^xsd:int ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Major" .
+
+datatype:Minor
+  a qudt:MajorMinorType ;
+  dtype:code 1 ;
+  dtype:literal "minor" ;
+  dtype:order "1"^^xsd:int ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Minor" .
+
+datatype:NO
+  a qudt:YesNoType ;
+  dtype:literal "N" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "No" .
+
+datatype:NUMERIC
+  a qudt:NumericType ;
+  dtype:code 101 ;
+  dtype:literal "numeric" ;
+  qudt:ansiSQLName "DECIMAL(p,s)" ;
+  qudt:odbcName "SQL_DECIMAL(p,s)" ;
+  qudt:oracleSQLName "NUMBER(p,s)" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Numeric" .
+
+datatype:NetCDF
+  a qudt:MultiDimensionalDataFormat ;
+  dcterms:description """
+  <p><em>NetCDF</em> (network Common Data Form) is a set of interfaces for array-oriented data access and a freely-distributed collection of data access libraries for C, Fortran, C++, Java, and other languages. 
+  The netCDF libraries support a machine-independent format for representing scientific data. 
+  Together, the interfaces, libraries, and format support the creation, access, and sharing of scientific data.
+  </p>"""^^rdf:HTML ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "NetCDF" .
+
+datatype:NonModifiableParameter
+  a qudt:ParameterModifiabilityType ;
+  dtype:code "0" ;
+  dtype:literal "fixed" ;
+  rdfs:comment "Parameter is fixed, not modifiable." ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Non modifiable parameter" .
+
+datatype:OCTET
+  a qudt:OctetType ;
+  dtype:code "800" ;
+  dtype:literal "octet" ;
+  qudt:abbreviation "octet" ;
+  qudt:bits 8 ;
+  qudt:bytes 1 ;
+  qudt:cName "Byte" ;
+  qudt:encoding datatype:OctetEncoding ;
+  qudt:id "T002-01" ;
+  qudt:maxInclusive 255 ;
+  qudt:minInclusive 0 ;
+  qudt:rdfsDatatype xsd:byte ;
+  qudt:signedness datatype:Unsigned ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Octet" .
+
+datatype:OFF
+  a qudt:OnOffStateType ;
+  dtype:code "0" ;
+  dtype:literal "off" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Off" .
+
+datatype:OFFstate
+  a qudt:OffOnStateTypeEnumeration ;
+  dtype:code "0" ;
+  dtype:literal "off" ;
+  qudt:element datatype:OFF ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Off" .
+
+datatype:ON
+  a qudt:OnOffStateType ;
+  dtype:code "1" ;
+  dtype:literal "on" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "On" .
+
+datatype:ONstate
+  a qudt:OnOffStateTypeEnumeration ;
+  dtype:code "1" ;
+  dtype:literal "on" ;
+  qudt:element datatype:ON ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "On" .
+
+datatype:OctetEncoding
+  a qudt:BooleanEncodingType, qudt:ByteEncodingType ;
+  qudt:bytes 1 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "OCTET Encoding" .
+
+datatype:OneMeansOff
+  a qudt:OnOffStateType ;
+  dtype:literal "off" ;
+  qudt:inverted true ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "One means off" .
+
+datatype:POSITIVE-BIG-INTEGER
+  a qudt:PositiveBigIntegerType ;
+  dtype:literal "PI64" ;
+  qudt:abbreviation "PI64" ;
+  qudt:bits 64 ;
+  qudt:bytes 8 ;
+  qudt:maxInclusive "2^{64}-1" ;
+  qudt:minInclusive "1" ;
+  qudt:mySQLName "BIGINT" ;
+  qudt:rdfsDatatype xsd:unsignedLong ;
+  qudt:signedness datatype:Unsigned ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Positive Big Integer" .
+
+datatype:POSITIVE-LONG-INTEGER
+  a qudt:PositiveIntegerType ;
+  dtype:literal "PI32" ;
+  qudt:abbreviation "UI32" ;
+  qudt:bits 32 ;
+  qudt:bytes 4 ;
+  qudt:encoding datatype:UnsignedIntegerEncoding ;
+  qudt:maxInclusive "2^{32}-1" ;
+  qudt:minInclusive "1" ;
+  qudt:mySQLName "INT" ;
+  qudt:rdfsDatatype xsd:unsignedInt ;
+  qudt:signedness datatype:Unsigned ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Unsigned Long Integer" .
+
+datatype:PadWithAny
+  a qudt:PaddingType ;
+  dcterms:description """
+  <p>Pad with either a one or a zero. 
+  In other words, this is the "don't care" option.
+  </p>
+  """^^rdf:HTML ;
+  dtype:literal "none" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Pad with any" .
+
+datatype:PadWithOnes
+  a qudt:PaddingType ;
+  dcterms:description "Pad unused bits of a field with a one."^^rdf:HTML ;
+  dtype:literal "ones" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Pad with ones" .
+
+datatype:PadWithZeros
+  a qudt:PaddingType ;
+  dcterms:description "Pad unused bits of a field with a zero."^^rdf:HTML ;
+  dtype:literal "zeros" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Pad with zeros" .
+
+datatype:PartiallyOrdered
+  a qudt:OrderedType ;
+  dtype:literal "partial" ;
+  qudt:plainTextDescription "Partial ordered structure." ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Partially Ordered" .
+
+datatype:Pointer
+  a qudt:ReferenceDatatype ;
+  dcterms:description """
+  A pointer is a programming language data type whose value refers directly to (or "points to") another value stored elsewhere in the computer memory using its address. 
+  It references a value stored elsewhere in memory, and obtaining or requesting the value to which a pointer refers is called dereferencing the pointer. 
+  A pointer is a simple implementation of the general reference data type. 
+  Pointers to data improve performance for repetitive operations such as traversing string and tree structures.
+  While "pointer" has been used to refer to references in general, it more properly applies to data structures whose interface explicitly allows the pointer to be manipulated as a memory address.
+  """ ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Pointer" .
+
+datatype:QuaternionVector-DP
+  a qudt:Vector ;
+  dcterms:description """
+  <p>This vector type is intended to hold the (real-valued) coefficients to a quaternion number. 
+  That is, if $V=[a,b,c,d]$ is a vector of type <i>QUATERNION-VECTOR</i>,
+   then the proper interpretation of this vector is with respect to the basis elements $1,i,j,k$ of the quaternion algebra. 
+  Specifically, the V corresponds to the quaternion $v = a*1 + b*i + c*j + d*k$. 
+  Note that for most computations, the quaternion basis elements will be replaced with their 4 X 4 dimensional matrix representations,
+   which are elements of type <i>QuaternionBasisMatrix</i>. 
+  In this case, the resulting quaternion will be a 4 X 4 dimensional matrix of the form:
+  </p>
+<pre>
+ a   b  c  d
+-b   a -d  c
+-c   d  a -b
+-d  -c  b  a
+</pre>
+"""^^rdf:HTML ;
+  dtype:code 340 ;
+  qudt:datatype datatype:FLOAT-DP ;
+  qudt:dimensionality 4 ;
+  qudt:dimensions ( 4 4 4 4 ) ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Quaternion Vector - double precision" .
+
+datatype:RELATIVE-DATETIME
+  a qudt:DateStringType ;
+  dcterms:description "Days and time relative to some Epoch"^^rdf:HTML ;
+  dtype:code 76 ;
+  dtype:literal "reldate" ;
+  qudt:dimensionality 1 ;
+  qudt:id "T004-08" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Relative Date And Time" .
+
+datatype:RN_BINARY-BASE
+  a qudt:RealNumberType ;
+  dcterms:description "A rational number can be expressed in the form m*b^e, where m (the mantissa), b (the base), and e (the exponent) are integers. In this case b is chosen to be 2, and then the values of m and e are determined given this choice of base." ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Real number binary base" .
+
+datatype:RN_DECIMAL-BASE
+  a qudt:RealNumberType ;
+  dcterms:description "A rational number can be expressed in the form m*b^e, where m (the mantissa), b (the base), and e (the exponent) are integers. In this case b is chosen to be 10, and then the values of m and e are determined given this choice of base." ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Real number decminal base" .
+
+datatype:SIGNED-BIG-INTEGER
+  a qudt:SignedBigIntegerType ;
+  dcterms:description """
+  <p>The <em>Signed Big Integer</em>, (<em>long</em> in Java) data type is a 64-bit signed two's complement integer. 
+  It has a minimum value of -9,223,372,036,854,775,808 and a maximum value of 9,223,372,036,854,775,807 (inclusive). 
+  Use this data type when you need a range of values wider than those provided by int.
+  </p>"""^^rdf:HTML ;
+  dtype:code 109 ;
+  dtype:literal "SI64" ;
+  prov:wasInfluencedBy "http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy "http://docs.python.org/2/library/stdtypes.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy "http://msdn.microsoft.com/en-us/library/4xwz0t37(v=vs.71).aspx"^^xsd:anyURI ;
+  prov:wasInfluencedBy "http://www.mathworks.com/help/matlab/ref/int16.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html> ;
+  prov:wasInfluencedBy <http://docs.python.org/2/library/stdtypes.html> ;
+  prov:wasInfluencedBy <http://msdn.microsoft.com/en-us/library/4xwz0t37(v=vs.71).aspx> ;
+  prov:wasInfluencedBy <http://www.mathworks.com/help/matlab/ref/int16.html> ;
+  qudt:abbreviation "SI64" ;
+  qudt:bits 64 ;
+  qudt:bytes 8 ;
+  qudt:encoding datatype:LongUnsignedIntegerEncoding ;
+  qudt:id "T002-02" ;
+  qudt:javaName "long" ;
+  qudt:matlabName "int64" ;
+  qudt:maxInclusive "2^{63}-1" ;
+  qudt:minInclusive "-2^{63}" ;
+  qudt:mySQLName "BIGINT" ;
+  qudt:protocolBuffersName "int64" ;
+  qudt:rdfsDatatype xsd:long ;
+  qudt:signedness datatype:Signed ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Signed Big Integer" .
+
+datatype:SIGNED-INTEGER
+  a qudt:SignedIntegerType ;
+  dcterms:description """
+  <p>A <em>Signed Integer</em> or 'short' data type is a 16-bit signed two's complement integer. 
+  It has a minimum value of -32,768 and a maximum (inclusive) value of 32,767. 
+  As with byte, the same guidelines apply: you can use a short to save memory in large arrays,
+   in situations where the memory savings actually matters.
+  </p>"""^^rdf:HTML ;
+  dtype:code 105 ;
+  dtype:literal "SI16" ;
+  prov:wasInfluencedBy <http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html> ;
+  prov:wasInfluencedBy <http://docs.python.org/2/library/stdtypes.html> ;
+  prov:wasInfluencedBy <http://msdn.microsoft.com/en-us/library/4xwz0t37(v=vs.71).aspx> ;
+  prov:wasInfluencedBy <http://www.mathworks.com/help/matlab/ref/int16.html> ;
+  qudt:abbreviation "SI16" ;
+  qudt:ansiSQLName "SMALLINT" ;
+  qudt:bits 16 ;
+  qudt:bytes 2 ;
+  qudt:encoding datatype:ShortSignedIntegerEncoding ;
+  qudt:id "T002-03" ;
+  qudt:javaName "short" ;
+  qudt:jsName "short" ;
+  qudt:matlabName "int16" ;
+  qudt:maxInclusive "32767" ;
+  qudt:microsoftSQLServerName "smallint" ;
+  qudt:minInclusive "-32767" ;
+  qudt:mySQLName "SMALLINT" ;
+  qudt:rdfsDatatype xsd:short ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Signed Integer" .
+
+datatype:SIGNED-LONG-INTEGER
+  a qudt:SignedLongIntegerType ;
+  dcterms:description """
+  <p>A <em>Signed Long Integer</em> is a 32 bit signed integer in 2's complement form.  
+  It has a minimum value of -2,147,483,648 and a maximum value of 2,147,483,647 (inclusive). 
+  For integral values, this data type is generally the default choice unless there is a reason (like the above) to choose something else. 
+  This data type will most likely be large enough for the numbers a program will use.
+  If a wider range of values is needed use long instead.
+  </p>"""^^rdf:HTML ;
+  dtype:literal "SI32" ;
+  prov:wasInfluencedBy "http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy "http://docs.python.org/2/library/stdtypes.html"^^xsd:anyURI ;
+  prov:wasInfluencedBy "http://msdn.microsoft.com/en-us/library/4xwz0t37(v=vs.71).aspx"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html> ;
+  prov:wasInfluencedBy <http://docs.python.org/2/library/stdtypes.html> ;
+  prov:wasInfluencedBy <http://msdn.microsoft.com/en-us/library/4xwz0t37(v=vs.71).aspx> ;
+  qudt:abbreviation "SI32" ;
+  qudt:ansiSQLName "INTEGER" ;
+  qudt:bits 32 ;
+  qudt:bytes 4 ;
+  qudt:cName "int" ;
+  qudt:id "T002-04" ;
+  qudt:javaName "int" ;
+  qudt:jsName "int" ;
+  qudt:matlabName "int32" ;
+  qudt:maxInclusive "2^{31}-1" ;
+  qudt:microsoftSQLServerName "integer" ;
+  qudt:minInclusive "-2^{31}" ;
+  qudt:mySQLName "INT" ;
+  qudt:odbcName "SQL_INTEGER" ;
+  qudt:oleDBName "DBTYPE_I4" ;
+  qudt:oracleSQLName "NUMBER(10)" ;
+  qudt:protocolBuffersName "int32" ;
+  qudt:rdfsDatatype xsd:int ;
+  qudt:signedness datatype:Signed ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Signed Long Integer" .
+
+datatype:SIGNED-MEDIUM-INTEGER
+  a qudt:SignedMediumIntegerType ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/integer-types.html> ;
+  qudt:abbreviation "SI24" ;
+  qudt:bits 24 ;
+  qudt:bytes 3 ;
+  qudt:maxInclusive 8388607 ;
+  qudt:minInclusive -8388608 ;
+  qudt:mySQLName "MEDIUMINT" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Signed Medium Integer" .
+
+datatype:SIGNED-SHORT-INTEGER
+  a qudt:SignedShortIntegerType ;
+  dcterms:description "Unsigned 8 bit integer."^^rdf:HTML ;
+  dtype:code 103 ;
+  dtype:literal "SI8" ;
+  qudt:abbreviation "SI8" ;
+  qudt:ansiSQLName "NUMERIC(3,0)" ;
+  qudt:bits 8 ;
+  qudt:bytes 1 ;
+  qudt:encoding datatype:OctetEncoding ;
+  qudt:id "T002-06" ;
+  qudt:maxInclusive "127" ;
+  qudt:microsoftSQLServerName "tinyint" ;
+  qudt:minInclusive "-127" ;
+  qudt:mySQLName "TINYINT" ;
+  qudt:odbcName "SQL_TINYINT" ;
+  qudt:oleDBName "DBTYPE_I1" ;
+  qudt:rdfsDatatype xsd:byte ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Signed Short Integer" .
+
+datatype:STRING
+  a qudt:StringType ;
+  dcterms:description """
+  <p>A <em>String</em> is an ordered list of characters.
+  Typically the characters are UTF-8 characters.
+  </p>
+  """^^rdf:HTML ;
+  dtype:literal "string" ;
+  qudt:dimensionality 1 ;
+  qudt:memberDatatype datatype:CHAR ;
+  qudt:protocolBuffersName "string" ;
+  qudt:rdfsDatatype xsd:string ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "String" .
+
+datatype:Seidelmann2000
+  a qudt:Citation ;
+  dcterms:description """
+  <p>“Report of the IAU/IAG Working Group on Cartographic Coordinates and Rotational Elements of the Planets and Satellites: 2000”,
+   P.K. Seidelmann, V. K. Abalakin, M. Bursa, M. E. Davies, C. DeBergh, J. H. Lieske, J. Oberst, J. L. Simon, E. M. Standish, P. Stooke, and P. C. Thomas,
+   Celestial Mechanics and Dynamical Astronomy 82: 83-110, 2002 (http://springerlink.metapress.com,
+   follow the links from “Browse by Online Libraries (subject areas)”, then “Physics and Astronomy”,
+   then “Celestial Mechanics and Dynamical Astronomy”, then “Volume 82 - Number 1/January 2002”,
+   then follow the links to download the paper.
+  </p>"""^^rdf:HTML ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Seidelmann2000" .
+
+datatype:ShortSignedIntegerEncoding
+  a qudt:IntegerEncodingType ;
+  qudt:bytes 2 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Short Signed Integer Encoding" .
+
+datatype:ShortUnsignedIntegerEncoding
+  a qudt:BooleanEncodingType, qudt:IntegerEncodingType ;
+  qudt:bytes 2 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Short Unsigned Integer Encoding" .
+
+datatype:Signed
+  a qudt:SignednessType ;
+  dtype:literal "signed" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Signed" .
+
+datatype:SignedIntegerEncoding
+  a qudt:IntegerEncodingType ;
+  qudt:bytes 4 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Signed Integer Encoding" .
+
+datatype:SinglePrecisionRealEncoding
+  a qudt:FloatingPointEncodingType ;
+  qudt:bytes 32 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Single Precision Real Encoding" .
+
+datatype:SystemModifiableParameter
+  a qudt:ParameterModifiabilityType ;
+  dtype:code "1" ;
+  dtype:literal "system" ;
+  rdfs:comment "Parameter is modifiable by a (computer) system." ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "System modifiable parameter" .
+
+datatype:TIME
+  a qudt:TimeStringType ;
+  dcterms:description "Time in hh:mm:ss[Z|(+|-)hh:mm]format." ;
+  dtype:code 68 ;
+  dtype:literal "time" ;
+  qudt:dimensionality 1 ;
+  qudt:id "T004-12" ;
+  qudt:rdfsDatatype xsd:time ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "TIME" .
+
+datatype:TRUE
+  a qudt:BooleanTypeEnumeratedValue ;
+  dtype:literal "true" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "True" .
+
+datatype:TYPE-MATRIX-4by4-FLOATDP
+  a qudt:TypeList ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "TYPE-MATRIX-4by4-FLOATDP" .
+
+datatype:TotallyOrdered
+  a qudt:OrderedType ;
+  dtype:literal "total" ;
+  qudt:plainTextDescription "Totally ordered structure." ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Totally Ordered" .
+
+datatype:UNARY-FUNCTION
+  a qudt:FunctionDatatype ;
+  dcterms:description "This type identifies functions that have exactly one argument."^^rdf:HTML ;
+  qudt:functionArity 1 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "UNARY-FUNCTION" .
+
+datatype:UNSIGNED-BIG-INTEGER
+  a qudt:UnsignedBigIntegerType ;
+  dtype:code 117 ;
+  dtype:literal "UI64" ;
+  qudt:abbreviation "UI64" ;
+  qudt:bits 64 ;
+  qudt:bytes 8 ;
+  qudt:id "T002-08" ;
+  qudt:maxInclusive "2^{64}-1" ;
+  qudt:minInclusive "0" ;
+  qudt:mySQLName "BIGINT" ;
+  qudt:rdfsDatatype xsd:unsignedLong ;
+  qudt:signedness datatype:Unsigned ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Unsigned Big Integer" .
+
+datatype:UNSIGNED-INTEGER
+  a qudt:UnsignedIntegerType ;
+  dcterms:description "An unsigned 16-bit integer in the range 0 to 65,535"^^rdf:HTML ;
+  dtype:code 113 ;
+  dtype:literal "UI16" ;
+  qudt:abbreviation "UI16" ;
+  qudt:bits 16 ;
+  qudt:id "T002-09" ;
+  qudt:maxInclusive "65535" ;
+  qudt:microsoftSQLServerName "smallint" ;
+  qudt:minInclusive "0" ;
+  qudt:mySQLName "SMALLINT" ;
+  qudt:rdfsDatatype xsd:unsignedShort ;
+  qudt:signedness datatype:Unsigned ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Unsigned Integer" .
+
+datatype:UNSIGNED-LONG-INTEGER
+  a qudt:UnsignedLongIntegerType ;
+  dtype:code 115 ;
+  dtype:literal "UI32" ;
+  qudt:abbreviation "UI32" ;
+  qudt:bits 32 ;
+  qudt:bytes 4 ;
+  qudt:encoding datatype:UnsignedIntegerEncoding ;
+  qudt:id "T002-10" ;
+  qudt:maxInclusive "2^{32}-1" ;
+  qudt:minInclusive "0" ;
+  qudt:mySQLName "INT" ;
+  qudt:rdfsDatatype xsd:unsignedInt ;
+  qudt:signedness datatype:Unsigned ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Unsigned Long Integer" .
+
+datatype:UNSIGNED-MEDIUM-INTEGER
+  a qudt:UnsignedMediumIntegerType ;
+  prov:wasInfluencedBy <http://dev.mysql.com/doc/refman/5.0/en/integer-types.html> ;
+  qudt:abbreviation "UI24" ;
+  qudt:bits 24 ;
+  qudt:bytes 3 ;
+  qudt:maxInclusive 8388607 ;
+  qudt:minInclusive -8388608 ;
+  qudt:mySQLName "MEDIUMINT" ;
+  qudt:signedness datatype:Unsigned ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Unsigned Medium Integer" .
+
+datatype:UNSIGNED-SHORT-INTEGER
+  a qudt:OctetType ;
+  dtype:code 111 ;
+  dtype:literal "UI8" ;
+  prov:wasInfluencedBy "http://msdn.microsoft.com/en-us/library/aa275635(v=sql.80).aspx"^^xsd:anyURI ;
+  prov:wasInfluencedBy <http://msdn.microsoft.com/en-us/library/aa275635(v=sql.80).aspx> ;
+  qudt:abbreviation "UI8" ;
+  qudt:bits 8 ;
+  qudt:bytes 1 ;
+  qudt:id "T002-13" ;
+  qudt:maxInclusive 255 ;
+  qudt:microsoftSQLServerName "tinyint" ;
+  qudt:minInclusive 0 ;
+  qudt:oleDBName "DBTYPE_UI1" ;
+  qudt:rdfsDatatype xsd:unsignedByte ;
+  qudt:signedness datatype:Unsigned ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Unsigned Short Integer" .
+
+datatype:UTC-DATETIME
+  a qudt:DateStringType ;
+  dcterms:description """
+  <p>UTC is the time-scale maintained by the BIPM, with assistance from the IERS, which forms the basis of a coordinated dissemination of standard frequencies and time signals. 
+  It corresponds exactly in rate with  the international reference scale of atomic time (TAI) but differs from it by an integer number of seconds.  
+  TAI, based on the second (SI), as realized on the rotating geoid, is formed by the BIPM on the basis of clock data supplied by cooperating establishments. 
+  It is in the form of a continuous scale, e.g. in days, hours, minutes and seconds from the origin 1 January, 1958 (adopted by the CGPM 1971).
+  </p>
+  <p>UTC date times are expressed as "YYYY-MM-DDThh:mm:ss[.dd]" or "YYYY-DDDThh:mm:ss[.dd]",
+   where 'YYYY' is the year, 'MM' is the two-digit month, 'DD' is the two-digit day, 'DDD' is the three digit day of year, 'T' is constant,
+    'hh:mm:ss[.dd]' is the UTC time in hours, minutes, seconds, and optional fractional seconds. 
+  As many 'd' characters to the right of the period as required may be used to obtain the required precision. All fields require leading zeros.
+  </p>"""^^rdf:HTML ;
+  dtype:code 78 ;
+  dtype:literal "utc-date" ;
+  qudt:dimensionality 1 ;
+  qudt:exactMatch datatype:DATETIME ;
+  qudt:id "T004-13" ;
+  qudt:rdfsDatatype xsd:dateTime ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "UTC Date Time" .
+
+datatype:UTC-DAYTIME
+  a qudt:DateStringType ;
+  dcterms:description """
+  <p>
+  UTC day time is expressed as "YYYY-DDDThh:mm:ss.ddZ", where each character is an ASCII character using one octet with the following meanings:
+   YYYY = Year in four-character subfield with values 0001-9999,
+   DDD = Day of year in three-character subfield with values 001-365 or -366,
+   T =  Calendar-Time separator,
+   hh = Hour in two-character subfield with values 00-23,
+   mm = Minute in two-character subfield with values 00-59,
+   ss = Second in two-character subfield with values 00-59 (-58 or -60 during leap seconds),
+   dd = Decimal fraction of second in one- to n-character subfield, each d has values 0-9, and Z = time code terminator (optional)" 
+  </p>
+  """^^rdf:HTML ;
+  dtype:code 79 ;
+  dtype:literal "utc-dayTime" ;
+  qudt:dimensionality 1 ;
+  qudt:id "T004-14" ;
+  qudt:rdfsDatatype datatype:UTC-DayTime ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "UTC DAY TIME" .
+
+datatype:UTC-DayTime
+  a rdfs:Datatype ;
+  dcterms:description "YYYY-DDDThh:mm:ss.ddZ, where each character is an ASCII character using one octet with the following meanings: YYYY = Year in four-character subfield with values 0001-9999, DDD = Day of year in three-character subfield with values 001-365 or -366, T =  Calendar-Time separator, hh = Hour in two-character subfield with values 00-23,  mm = Minute in two-character subfield with values 00-59, ss = Second in two-character subfield with values 00-59 (-58 or -60 during leap seconds), dd = Decimal fraction of second in one- to n-character subfield, each d has values 0-9, and Z = time code terminator (optional)" ;
+  rdfs:comment "[0-9]{4}\\\\-[0-9]{3}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\\\.[0-9]{2}Z?" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "UTC Day time" ;
+  rdfs:subClassOf xsd:string .
+
+datatype:UTF16-CHAR
+  a qudt:CharacterType ;
+  dtype:code 150 ;
+  dtype:literal "utf16" ;
+  qudt:bits 16 ;
+  qudt:bytes 2 ;
+  qudt:id "T001-04" ;
+  qudt:rdfsDatatype xsd:short ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "UTF16 CHAR" .
+
+datatype:UTF16-STRING
+  a qudt:StringUTF16 ;
+  dtype:literal "utf16" ;
+  qudt:dimensionality 1 ;
+  qudt:encoding datatype:UTF16-StringEncoding ;
+  qudt:memberDatatype datatype:UTF16-CHAR ;
+  qudt:rdfsDatatype xsd:string ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "UTF16 String" .
+
+datatype:UTF16-StringEncoding
+  a qudt:StringEncodingType ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "UTF-16 String" .
+
+datatype:UTF8-CHAR
+  a qudt:CharacterType ;
+  dtype:code 122 ;
+  dtype:literal "utf8" ;
+  qudt:bits 8 ;
+  qudt:bytes 1 ;
+  qudt:id "T001-05" ;
+  qudt:rdfsDatatype xsd:byte ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "UTF8 CHAR" .
+
+datatype:UTF8-STRING
+  a qudt:StringUTF8 ;
+  dcterms:description "String consisting of UTF-8 characters"^^rdf:HTML ;
+  dtype:literal "utf8" ;
+  qudt:dimensionality 1 ;
+  qudt:encoding datatype:UTF8-StringEncoding ;
+  qudt:memberDatatype datatype:UTF8-CHAR ;
+  qudt:rdfsDatatype xsd:string ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/schema/datatype> ;
+  rdfs:label "UTF8 String" .
+
+datatype:UTF8-StringEncoding
+  a qudt:StringEncodingType ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "UTF-8 Encoding" .
+
+datatype:Unordered
+  a qudt:OrderedType ;
+  dtype:literal "unordered" ;
+  qudt:plainTextDescription "Unordered structure." ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Unordered" .
+
+datatype:Unsigned
+  a qudt:SignednessType ;
+  dtype:literal "unsigned" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Unsigned" .
+
+datatype:UnsignedIntegerEncoding
+  a qudt:IntegerEncodingType ;
+  qudt:bytes 4 ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Unsigned Integer Encoding" .
+
+datatype:UserModifiableParameter
+  a qudt:ParameterModifiabilityType ;
+  dtype:code "2" ;
+  dtype:literal "user" ;
+  rdfs:comment "Parameter is modifiable by a user." ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "User modifiable parameter" .
+
+datatype:WDST_DRY
+  a qudt:WetDryStateType ;
+  dtype:code "2" ;
+  dtype:literal "dry" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Dry" .
+
+datatype:WDST_WET
+  a qudt:WetDryStateType ;
+  dtype:code "1" ;
+  dtype:literal "wet" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Wet" .
+
+datatype:WordAligned
+  a qudt:AlignmentType ;
+  dcterms:description "Alignment of a field at a word boundary, that is 2 bytes."^^rdf:HTML ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Word aligned" .
+
+datatype:YDT
+  a qudt:DateStringType ;
+  dtype:code 215 ;
+  dtype:literal "YDT" ;
+  qudt:dimensionality 1 ;
+  qudt:id "T004-16" ;
+  qudt:rdfsDatatype xsd:string ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Year Day Time" .
+
+datatype:YES
+  a qudt:YesNoType ;
+  dtype:literal "Y" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "Yes" .
+
+datatype:negative
+  a qudt:Polarity ;
+  dtype:code "1" ;
+  dtype:literal "negative" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "negative" .
+
+datatype:positive
+  a qudt:Polarity ;
+  dtype:code "2" ;
+  dtype:literal "positive" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "positive" .
+
+vaem:GMD_QUDT_DATATYPE
+  a vaem:GraphMetaData ;
+  dcterms:contributor "Steve Ray" ;
+  dcterms:created "2026-03-16T16:25:54.850+00:00"^^xsd:dateTime ;
+  dcterms:creator "Ralph Hodgson" ;
+  dcterms:description "The QUDT 'Datatype' vocabulary is a specification of scalar and structured data types. Scalar data types are defined for all the commonly encountered forms of numbers, characters and booleans, with their representations in a number of vendor and industry specific technologies. Structured data types cover arrays, lists, trees and many other forms of composite data elements. Specification of coordinate systems is also covered."^^rdf:HTML ;
+  dcterms:modified "1234-12-12T12:34:56Z"^^xsd:dateTime ;
+  dcterms:rights "The QUDT Ontologies are issued under a Creative Commons Attribution 4.0 International License (CC BY 4.0), available at https://creativecommons.org/licenses/by/4.0/. Attribution should be made to QUDT.org" ;
+  dcterms:subject "Datatypes" ;
+  dcterms:title "QUDT Datatypes Version $$QUDT_MAJOR_MINOR_VERSION$$Vocabulary" ;
+  rdfs:isDefinedBy <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  rdfs:label "QUDT Vocabulary for Datatypes - Version $$QUDT_VERSION$$" ;
+  vaem:graphTitle "QUDT Datatypes Version $$QUDT_VERSION$$" ;
+  vaem:hasGraphRole vaem:VocabularyGraph ;
+  vaem:intent "Provides a vocabulary of datatypes for both human and machine use" ;
+  vaem:isMetadataFor <http://qudt.org/$$QUDT_VERSION$$/vocab/datatype> ;
+  vaem:latestPublishedVersion "https://qudt.org/doc/$$CURRENT_YEAR$$/$$CURRENT_MONTH$$/DOC_VOCAB-DATATYPES.html"^^xsd:anyURI ;
+  vaem:logo "https://qudt.org/linkedmodels.org/assets/lib/lm/images/logos/qudt_logo-300x110.png"^^xsd:anyURI ;
+  vaem:name "QUDT" ;
+  vaem:namespace "http://qudt.org/schema/qudt/"^^xsd:anyURI ;
+  vaem:namespacePrefix "qudt" ;
+  vaem:owner "QUDT.ORG" ;
+  vaem:previousPublishedVersion "https://qudt.org/doc/$$QUDT_PREV_RELEASE_YEAR$$/$$QUDT_PREV_RELEASE_MONTH$$/DOC_VOCAB-DATATYPES.html"^^xsd:anyURI ;
+  vaem:title "QUDT Vocabulary for Datatypes - Version $$QUDT_VERSION$$" ;
+  vaem:turtleFileURL "http://qudt.org/$$QUDT_VERSION$$/vocab/datatype"^^xsd:anyURI ;
+  vaem:usesNonImportedResource dcterms:abstract ;
+  vaem:usesNonImportedResource dcterms:created ;
+  vaem:usesNonImportedResource dcterms:creator ;
+  vaem:usesNonImportedResource dcterms:modified ;
+  vaem:usesNonImportedResource dcterms:rights ;
+  vaem:usesNonImportedResource dcterms:title ;
+  vaem:usesNonImportedResource <http://voag.linkedmodel.org/voag#QUDT-Attribution> ;
+  vaem:withAttributionTo <http://voag.linkedmodel.org/voag#QUDT-Attribution> .
+
+

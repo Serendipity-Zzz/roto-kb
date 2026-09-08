@@ -1,0 +1,159 @@
+schema_version: roto-kb-manifest.v1
+generated_at: '2026-09-08'
+isolation:
+  legacy_remote_kb_imported: false
+  forbidden_remote_paths:
+    - /data/knowledge-base/
+    - /home/ec2-user/.kb-server/
+    - /home/ec2-user/kb-server/
+  local_repository: E:/Project/ROTO-KB
+  remote_repository: https://github.com/Serendipity-Zzz/roto-kb
+deployment:
+  host: 54.172.101.190
+  user: ec2-user
+  code_path: /home/ec2-user/roto-kb/
+  source_path: /data/roto-kb/sources/
+  index_path: /data/roto-kb/index/
+  service: roto-kb.service
+  app_port: 8710
+  qdrant_port: 6334
+  public_path: /roto-kb/
+resources:
+  - id: fenitop-readme
+    type: official-doc
+    url: https://raw.githubusercontent.com/missionlab/fenitop/main/README.md
+    local_path: official-docs/fenitop/README.md
+    license: inspect-upstream
+    status: downloaded
+  - id: fenitop-beam-3d
+    type: official-example
+    url: https://raw.githubusercontent.com/missionlab/fenitop/main/scripts/beam_3d.py
+    local_path: official-docs/fenitop/beam_3d.py
+    license: inspect-upstream
+    status: downloaded
+  - id: fenitop-topopt
+    type: official-source
+    url: https://raw.githubusercontent.com/missionlab/fenitop/main/fenitop/topopt.py
+    local_path: official-docs/fenitop/topopt.py
+    license: inspect-upstream
+    status: downloaded
+  - id: gmsh-docs
+    type: official-doc
+    url: https://gmsh.info/doc/texinfo/gmsh.html
+    local_path: official-docs/gmsh/gmsh.html
+    license: inspect-upstream
+    status: downloaded
+  - id: cadquery-docs
+    type: official-doc
+    url: https://cadquery.readthedocs.io/en/latest/
+    local_path: official-docs/cadquery/index.html
+    license: inspect-upstream
+    status: downloaded
+  - id: dolfinx-gmsh-reader
+    type: official-doc
+    url: https://docs.fenicsproject.org/dolfinx/main/python/generated/dolfinx.io.gmsh.html
+    local_path: official-docs/dolfinx/gmsh-reader.html
+    license: inspect-upstream
+    status: downloaded
+  - id: jax-fem-paper
+    type: paper
+    url: https://arxiv.org/abs/2212.00964
+    local_path: papers/jax-fem-2212.00964.pdf
+    license: arxiv-source
+    status: downloaded
+  - id: topodiff-paper
+    type: paper
+    url: https://arxiv.org/abs/2208.09591
+    local_path: papers/topodiff-2208.09591.pdf
+    license: arxiv-source
+    status: downloaded
+  - id: aesthetics-paper
+    type: paper
+    url: https://arxiv.org/abs/1608.04953
+    local_path: papers/shape-aesthetics-1608.04953.pdf
+    license: arxiv-source
+    status: downloaded
+  - id: shape-preference-paper
+    type: paper
+    url: https://arxiv.org/abs/2505.12373
+    local_path: papers/shape-preference-2505.12373.pdf
+    license: arxiv-source
+    status: downloaded
+  - id: jax-fem-readme
+    type: official-doc
+    url: https://raw.githubusercontent.com/deepmodeling/jax-fem/main/README.md
+    local_path: official-docs/jax-fem/README.md
+    license: inspect-upstream
+    status: downloaded
+  - id: meshio-readme
+    type: official-doc
+    url: https://raw.githubusercontent.com/nschloe/meshio/main/README.md
+    local_path: official-docs/meshio/README.md
+    license: inspect-upstream
+    status: downloaded
+  - id: trimesh-readme
+    type: official-doc
+    url: https://raw.githubusercontent.com/mikedh/trimesh/main/README.md
+    local_path: official-docs/trimesh/README.md
+    license: inspect-upstream
+    status: downloaded
+  - id: pyvista-readme
+    type: official-doc
+    url: https://raw.githubusercontent.com/pyvista/pyvista/main/README.md
+    local_path: official-docs/pyvista/README.md
+    license: inspect-upstream
+    status: downloaded
+  - id: mfem-electromagnetics
+    type: official-doc
+    url: https://mfem.org/electromagnetics/
+    local_path: official-docs/mfem/electromagnetics.html
+    license: inspect-upstream
+    status: downloaded
+  - id: ngsolve-readme
+    type: official-doc
+    url: https://raw.githubusercontent.com/NGSolve/ngsolve/master/README.md
+    local_path: official-docs/ngsolve/README.md
+    license: inspect-upstream
+    status: downloaded
+  - id: moose-readme
+    type: official-doc
+    url: https://raw.githubusercontent.com/idaholab/moose/next/README.md
+    local_path: official-docs/moose/README.md
+    license: inspect-upstream
+    status: downloaded
+  - id: qudt
+    type: ontology
+    url: https://github.com/qudt/qudt-public-repo
+    revision: 75e5ef6a3bde9a01760007d148c6d52409f6a067
+    local_path: ontologies/qudt/
+    license: CC-BY-4.0
+    attribution: QUDT.org
+    status: downloaded
+  - id: iof-core
+    type: ontology
+    url: https://github.com/iofoundry/ontology
+    revision: b5384d757082397a1a8bedd0fddf950f356045de
+    local_path: ontologies/iof-core/
+    license: MIT
+    status: downloaded
+project_contracts:
+  - id: roto-prd
+    external_path: E:/Project/ROTO/docs/PRD-LLM-RAG-Topology-Optimization-Agent.md
+  - id: roto-sdd
+    external_path: E:/Project/ROTO/docs/SDD-LLM-RAG-Topology-Optimization-Agent.md
+  - id: roto-t02
+    external_path: E:/Project/ROTO/docs/tasks/T02-RAG知识索引与参数校验.md
+optional_extractors:
+  - id: scibert
+    type: pretrained-language-model
+    url: https://huggingface.co/allenai/scibert_scivocab_uncased
+    role: optional-v2-scientific-entity-and-relation-extractor
+    status: manifest-only
+  - id: matscibert
+    type: pretrained-language-model
+    url: https://huggingface.co/m3rg-iitd/matscibert
+    role: optional-v2-materials-entity-and-relation-extractor
+    status: manifest-only
+excluded_models:
+  - id: hunyuan3d-2
+    reason: Geometry generation model owned by the ROTO main repository; not a knowledge graph or RAG source.

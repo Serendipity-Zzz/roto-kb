@@ -1,0 +1,14 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+<http://qudt.org/$$QUDT_VERSION$$/schema/facade/qudt>
+  a owl:Ontology ;
+  owl:imports <http://qudt.org/$$QUDT_VERSION$$/collection/usertest> ;
+  owl:imports <http://qudt.org/$$QUDT_VERSION$$/schema/shacl/qudt> ;
+  owl:versionInfo "Created with TopBraid Composer" ;
+  rdfs:comment "Facade graph for single place to redirect QUDT schema imports. Note that currently, the functions import uses SPIN and OWL." ;
+  rdfs:label "QUDT SCHEMA Facade graph - v$$QUDT_VERSION$$" .
+
+
