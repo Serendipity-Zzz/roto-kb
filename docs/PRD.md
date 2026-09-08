@@ -4,7 +4,7 @@
 |---|---|
 | 产品 | ROTO（Robot-Oriented Topology Optimization Agent） |
 | 子系统 | ROTO-KB：结构优化工程知识服务 |
-| 文档版本 | PRD v1.1 |
+| 文档版本 | PRD v1.2 |
 | 日期 | 2026-09-08 |
 | 状态 | 独立仓库设计基线，可与主线 Loop Engineering 并行 |
 | 上游 | ROTO 总 PRD/SDD、T02 RAG 契约 |
@@ -125,6 +125,17 @@ V1 采用自托管 Qdrant Server，原因是：数据和 release 生命周期可
 说明：Qdrant 容器 REST 默认端口是 `6333`；本项目只把它映射为宿主机 `127.0.0.1:6334`，以形成明确的独立命名空间。Qdrant gRPC 端口不对宿主机和公网开放。禁止使用 `0.0.0.0:6334`。
 
 release 对应物理 collection `roto_kb_<release_id>`，线上只通过 alias `roto_kb_active` 查询。激活时先完成 staging collection、BM25、relations 和 manifest 的一致性校验，再切换 alias；保留上一 release 供回滚。Embedding 模型、向量维度或距离度量改变时必须新建 collection，不能向旧 collection 混写不同维度的向量。
+
+### 4.4 阿里云模型 API 选型
+
+模型调用供应商锁定为阿里云百炼 Model Studio（DashScope）。ROTO-KB 通过其 OpenAI-compatible API 调用 Embedding；需要 LLM 辅助摘要或关系抽取时也复用同一供应商，但使用独立的模型配置、超时和调用预算。
+
+- 中国内地默认 endpoint：`https://dashscope.aliyuncs.com/compatible-mode/v1`；若账号和 API key 属于其他地域，部署时使用该地域对应 endpoint，二者不能混用。
+- 凭据统一从 `DASHSCOPE_API_KEY` 注入，不在 manifest、日志、GitHub 或 Qdrant payload 中保存。
+- V1 推荐候选 Embedding 为 `text-embedding-v4`；最终模型名、可选维度和批量上限必须以用户账号所在地域实际可用能力为准。
+- 启动时对配置做一次 capability probe：发送固定短文本，验证模型可用并读取实际向量长度；实际长度与 `EMBEDDING_DIMENSION` 不一致时拒绝构建索引。
+- 远端 API 只负责生成向量或辅助结构化提取，不保存 ROTO-KB 的 active release 状态，也不能直接访问 Qdrant。
+- 更换 DashScope Embedding 模型或维度必须生成新 `pipeline_version` 和全量 staging release；原 collection 保留到新 release 激活并完成回滚窗口。
 
 ## 5. 知识范围与资源策略
 
@@ -335,10 +346,13 @@ Embedding 不可用时使用已有向量 + BM25；Qdrant 不可用时使用 BM25
 | `QDRANT_COLLECTION_PREFIX` | `roto_kb` | `roto_kb` | 否 | collection 命名隔离 |
 | `QDRANT_ACTIVE_ALIAS` | `roto_kb_active` | `roto_kb_active` | 否 | 在线查询入口 |
 | `QDRANT_API_KEY` | 本地 `.env` | server env file | 是 | Qdrant 自身鉴权 |
-| `EMBEDDING_BASE_URL` | 待确认 | server env file | 视地址而定 | OpenAI-compatible API |
-| `EMBEDDING_MODEL` | 待确认 | server env file | 否 | release manifest 必填 |
-| `EMBEDDING_DIMENSION` | 待确认 | 与模型一致 | 否 | collection 创建时固定 |
-| `EMBEDDING_API_KEY` | 本地 `.env` | server env file | 是 | 不写入镜像或仓库 |
+| `MODEL_PROVIDER` | `dashscope` | `dashscope` | 否 | 锁定阿里云百炼 Model Studio |
+| `DASHSCOPE_BASE_URL` | 中国内地 compatible endpoint | 按 API key 地域配置 | 否 | OpenAI-compatible API 基址 |
+| `DASHSCOPE_API_KEY` | 本地 `.env` | server env file | 是 | Embedding/可选 LLM 共用供应商凭据 |
+| `EMBEDDING_MODEL` | `text-embedding-v4`（建议值） | server env file | 否 | release manifest 必填 |
+| `EMBEDDING_DIMENSION` | 待地域/模型确认 | 与 capability probe 一致 | 否 | collection 创建时固定 |
+| `EMBEDDING_BATCH_SIZE` | `16` | 经压测调整 | 否 | 不超过模型接口限制 |
+| `DASHSCOPE_LLM_MODEL` | 空，V1 可关闭 | server env file | 否 | 摘要/关系抽取的可选模型 |
 | `ROTO_KB_READ_TOKEN` | 本地 `.env` | server env file | 是 | 只读 API token |
 | `ROTO_KB_ADMIN_TOKEN` | 本地 `.env` | server env file | 是 | 索引管理 token |
 | `ROTO_KB_RELEASE_RETENTION` | `2` | `2` | 否 | 至少保留当前和上一 release |
@@ -348,13 +362,13 @@ Embedding 不可用时使用已有向量 + BM25；Qdrant 不可用时使用 BM25
 
 ### 10.2 容量与性能预算
 
-当前原始资料约 36 MB，V1 按不超过 50,000 chunks 规划。以 1,536 维、float32 为例，纯向量约 293 MB；计入 HNSW、payload、WAL、双 release 和 snapshot 后，预留 2-4 GB Qdrant 空间，另预留 1-2 GB 给原始资料、BM25、构建临时文件和日志。
+当前原始资料约 36 MB，V1 按不超过 50,000 chunks 规划。以 1,024 维、float32 为容量示例，纯向量约 195 MB；计入 HNSW、payload、WAL、双 release 和 snapshot 后，预留 2-4 GB Qdrant 空间，另预留 1-2 GB 给原始资料、BM25、构建临时文件和日志。实际预算必须根据最终 DashScope 模型返回维度重算。
 
 - 首次构建前服务器剩余磁盘必须不少于 5 GB；低于阈值时 `/reload` 拒绝全量构建。
 - 默认只并存 active 和 previous 两个 release；staging 失败后清理其临时 collection。
 - 初期单实例即可，不引入 Qdrant 集群；目标是 1-10 QPS、`search` p95 小于 1.5 秒（不含上游 LLM 生成）。
 - Embedding 采用批处理、hash 去重和可恢复 checkpoint，避免重复调用外部 API。
-- 实际向量维度由最终 Embedding 模型决定，上述容量仅为 1,536 维估算。
+- 实际向量维度由最终 DashScope Embedding 模型决定，上述容量仅为 1,024 维示例。
 
 ### 10.3 备份与恢复
 
@@ -397,9 +411,14 @@ Embedding 不可用时使用已有向量 + BM25；Qdrant 不可用时使用 BM25
 
 ## 12. 里程碑与交付物
 
+工程设计和任务拆解文档：
+
+- [SDD：ROTO-KB 独立工程知识服务](./SDD.md)：组件、数据模型、API、状态机、故障和测试设计。
+- [ROTO-KB SDD 驱动开发子任务](./DEVELOPMENT-TASKS.md)：阶段门、任务依赖、输出、验收、回滚和持续内容运营清单。
+
 | 阶段 | 交付 | 依赖 |
 |---|---|---|
-| R0 | 本 PRD、目录、manifest、资源许可清单 | 当前文档 |
+| R0 | 本 PRD、SDD、开发子任务、目录、manifest、资源许可清单 | 当前文档 |
 | R1 | `RagService`/EvidencePackage Schema、Fake adapter、契约测试 | R0 |
 | R2 | 原始资料导入、解析切片、Local index、browse/search/fetch/graph | R1 |
 | R3 | Remote kb-server 适配、超时/鉴权/降级、release API | R2 |
@@ -431,9 +450,9 @@ pull request
 
 ## 13. 需要用户确认/执行的事项
 
-仓库已提供，当前仍需确认以下决策；这些决策不阻塞空库骨架和接口开发，但会阻塞首次真实向量索引：
+仓库已提供，模型供应商已确定为阿里云。当前剩余决策不阻塞 SDD、空库骨架和接口开发，但会阻塞首次真实向量索引：
 
-1. 指定 OpenAI-compatible Embedding 服务的 `base_url`、模型名和向量维度。不要在聊天中粘贴 API key；部署时可由本机安全文件或服务器环境文件注入。
+1. 在首次索引前确认阿里云账号地域、最终 Embedding 模型和维度；默认建议中国内地 endpoint + `text-embedding-v4`，维度由 capability probe 校验。不要在聊天中粘贴 API key。
 2. 确认是否由本任务自动生成 `ROTO_KB_READ_TOKEN`、`ROTO_KB_ADMIN_TOKEN` 和 `QDRANT_API_KEY` 并直接写入服务器 `/etc/roto-kb/roto-kb.env`；明文不会写入仓库或回复。
 3. 确认当前阶段是只完成 PRD/仓库基线，还是继续实现并部署 R0-R4。部署前需确认服务器已安装 Docker；若没有，部署脚本可负责安装，但这属于服务器软件变更。
 4. 当前可先使用 IP + HTTP；正式给外部调用方使用前需提供域名，或明确接受 HTTP 下 Bearer Token 可被链路窃听的风险。推荐先限制来源 IP，域名就绪后启用 HTTPS。
@@ -450,6 +469,7 @@ pull request
 | 知识库过大占满服务器 | 部署失败 | 当前服务器容量门槛、磁盘监控、禁止下载模型权重 |
 | Embedding 模型或维度被替换 | collection 不兼容、检索漂移 | 新建 release collection、全量重建、固定评测后切 alias |
 | Qdrant 端口直接暴露公网 | 索引被读取或篡改 | 仅绑定 `127.0.0.1:6334`、独立 API key、防火墙复核 |
+| DashScope 地域与 API key 不匹配 | 调用失败、首次构建阻塞 | endpoint 显式配置、启动 capability probe、禁止自动回退其他供应商 |
 
 ## 15. 参考资料
 

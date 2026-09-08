@@ -18,6 +18,12 @@ deployment:
   app_port: 8710
   qdrant_port: 6334
   public_path: /roto-kb/
+model_api:
+  provider: alibaba-cloud-model-studio-dashscope
+  protocol: openai-compatible
+  embedding_model: text-embedding-v4-recommended-pending-region-confirmation
+  embedding_dimension: pending-capability-probe
+  credentials_committed: false
 resources:
   - id: fenitop-readme
     type: official-doc
