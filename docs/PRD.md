@@ -4,8 +4,8 @@
 |---|---|
 | 产品 | ROTO（Robot-Oriented Topology Optimization Agent） |
 | 子系统 | ROTO-KB：结构优化工程知识服务 |
-| 文档版本 | PRD v1.2 |
-| 日期 | 2026-09-08 |
+| 文档版本 | PRD v1.3 |
+| 日期 | 2026-09-09 |
 | 状态 | 独立仓库设计基线，可与主线 Loop Engineering 并行 |
 | 上游 | ROTO 总 PRD/SDD、T02 RAG 契约 |
 | 下游 | `rag_subgraph`、参数抽取、Policy、报告和事件投影 |
@@ -29,6 +29,7 @@ ROTO 主线包含 LangGraph/Workflow、参数确认、几何生成、拓扑优�
 6. 通过远端 HTTP 服务供 ROTO 主线调用，同时保留本地 Fake/Local adapter 便于测试。
 7. 知识内容变更与代码发布分离：内容同步后调用 `reload`，代码发布不强制重建索引。
 8. 支持 RAG 故障降级；无命中时不得生成无来源的关键工程参数。
+9. 首批外部图谱内容必须可离线部署，不依赖付费图谱 API、在线 SPARQL 或第三方运行时账号。
 
 ### 2.2 不做
 
@@ -38,6 +39,7 @@ ROTO 主线包含 LangGraph/Workflow、参数确认、几何生成、拓扑优�
 - 允许公网访问查询服务；所有接口使用独立 Token，写接口使用管理 Token。
 - V1 不建设复杂知识图谱平台；关系图使用 JSON/SQLite/内存邻接表即可。
 - 不复用、复制、索引或修改服务器上现有的第三方知识库内容。
+- V1 不接入 Materials Project、NOMAD、Materials Cloud、AFLOW、OQMD 等在线材料数据库 API；DashScope 仅作为已选定的 Embedding/可选 LLM 供应商，不属于图谱数据源。
 
 ## 3. 已知远端基线与隔离要求
 
@@ -147,7 +149,7 @@ release 对应物理 collection `roto_kb_<release_id>`，线上只通过 alias `
 4. Gmsh、meshio、Trimesh、PyVista、CadQuery 的官方文档和格式说明。
 5. ROTO 自有 PRD/SDD/T02、单位规则、参数 Schema、求解器 adapter 文档。
 6. 公开论文：JAX-FEM、TopoDiff、3D 形状审美等，用于背景解释，不直接作为工程参数真值。
-7. QUDT 等单位/量纲资源；IOF/材料本体只作为后续扩展，先保存元数据和许可说明。
+7. QUDT 单位/量纲、IOF Core Released 核心文件、W3C PROV-O/DCAT 3/SHACL vocabulary 和 ROTO 自建领域种子图。
 
 ### 5.2 资源分层
 
@@ -159,10 +161,35 @@ release 对应物理 collection `roto_kb_<release_id>`，线上只通过 alias `
 | `code-snapshots` | 关键源码文件或浅克隆 | 是，限量 | 仅解释实现，不直接产生参数 |
 | `extractor-manifests` | SciBERT/MatSciBERT 等可选信息抽取模型 | 只保存清单 | 否 |
 | `weights` | 大模型权重、缓存 | 不下载 | 否 |
+| `graph-seeds` | 许可明确的 RDF/OWL/TTL 与 ROTO JSONL 种子 | 是，白名单 | 仅提供语义/映射/校验，不提供材料数值真值 |
 
 ### 5.3 许可证与来源
 
 每个 source 必须记录：`source_uri`、`retrieved_at`、`version/revision`、`sha256`、`license`、`attribution`、`status`。第三方资料只保留公开许可允许的文本或链接；不把闭源 API 响应、密钥和私有配置写入知识库。
+
+### 5.4 外部图谱离线种子决策
+
+首批图谱以 [部署清单](../knowledge/graph/deployment-manifest.yaml) 为唯一允许输入，采用静态快照和显式文件白名单：
+
+| 选择 | 许可 | 首批摄取范围 | 用途 |
+|---|---|---|---|
+| QUDT | CC BY 4.0 | schema、unit、quantitykind、dimension vector 四类文件 | 单位、物理量、量纲和换算语义 |
+| IOF Core | MIT | `core/Core.rdf`，且 maturity 为 `Released` | 工业对象、过程和设计产物上位语义 |
+| W3C PROV-O | W3C Document License | 原始 `prov-o.ttl` | source/artifact/release provenance |
+| W3C DCAT 3 | W3C Document License | 原始 `dcat3.ttl` | Dataset、Distribution、CatalogRecord |
+| W3C SHACL | W3C Document License | 原始 `shacl.ttl` vocabulary | 本地图约束的词汇基础 |
+| ROTO domain seed v1 | 项目自有 | 41 nodes、18 relations、3 rules | 工程别名、FEniTop 字段映射和安全规则 |
+
+这些内容无需 API key，可随知识 source 同步到服务器后由 `rdflib/JSONL` 离线编译。解析器禁止递归扫描整个本体仓库，也禁止在 build 期间联网解析 `owl:imports`；只读取清单白名单，外部 URI 作为标识保存。
+
+以下候选不进入 V1 active release：
+
+- Materials Project、NOMAD、Materials Cloud、AFLOW、OQMD：移为未来可选 connector 或人工审核的离线数据批次，不承担启动和查询依赖。
+- IEEE 1872 CORA、MatOnto、PropNet：许可证或再分发权不明确，只保留调研链接，不复制本体。
+- Wikidata：不下载全量 dump，也不依赖 SPARQL API；少量别名由 ROTO 自有种子维护。
+- AiiDA、Common Core Ontologies、OBO RO：分别因属于软件框架、上位本体重叠或领域噪声而暂缓。
+
+原调研种子中的 `Aluminum6061T6`、`MaterialProject`、`CORA` 及关联已从部署版删除。V1 只定义 `Material`、模量、泊松比、密度等概念，不写入具体牌号数值；材料事实必须来自以后许可明确、带状态/温度/单位/来源的离线表。
 
 ## 6. 本地知识目录
 
@@ -181,9 +208,13 @@ ROTO-KB/
       dolfinx/
     papers/
     project-contracts/
+    graph/
+      deployment-manifest.yaml
+      seeds/roto-domain-seed.v1.jsonl
     ontologies/
       qudt/
       iof-core/
+      w3c/
     extractor-manifests/
     checksums.sha256
   src/
@@ -415,6 +446,7 @@ Embedding 不可用时使用已有向量 + BM25；Qdrant 不可用时使用 BM25
 
 - [SDD：ROTO-KB 独立工程知识服务](./SDD.md)：组件、数据模型、API、状态机、故障和测试设计。
 - [ROTO-KB SDD 驱动开发子任务](./DEVELOPMENT-TASKS.md)：阶段门、任务依赖、输出、验收、回滚和持续内容运营清单。
+- [外部图谱离线种子选型](./GRAPH-SEED-SELECTION.md)：最终纳入/排除列表、许可和更新约束。
 
 | 阶段 | 交付 | 依赖 |
 |---|---|---|
@@ -470,6 +502,8 @@ pull request
 | Embedding 模型或维度被替换 | collection 不兼容、检索漂移 | 新建 release collection、全量重建、固定评测后切 alias |
 | Qdrant 端口直接暴露公网 | 索引被读取或篡改 | 仅绑定 `127.0.0.1:6334`、独立 API key、防火墙复核 |
 | DashScope 地域与 API key 不匹配 | 调用失败、首次构建阻塞 | endpoint 显式配置、启动 capability probe、禁止自动回退其他供应商 |
+| 外部本体递归 import 膨胀或漂移 | 构建联网、重复类、版本不可复现 | 白名单文件、禁网络 import、namespace/版本/hash gate |
+| 计算材料数据被误作工程许用值 | 错误材料参数进入求解器 | V1 不接材料 API；具体数值需离线来源、条件、单位和人工确认 |
 
 ## 15. 参考资料
 

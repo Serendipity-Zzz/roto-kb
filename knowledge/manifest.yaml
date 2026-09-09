@@ -1,5 +1,5 @@
 schema_version: roto-kb-manifest.v1
-generated_at: '2026-09-08'
+generated_at: '2026-09-09'
 isolation:
   legacy_remote_kb_imported: false
   forbidden_remote_paths:
@@ -142,6 +142,55 @@ resources:
     local_path: ontologies/iof-core/
     license: MIT
     status: downloaded
+  - id: w3c-prov-o
+    type: ontology
+    url: https://www.w3.org/ns/prov-o.ttl
+    retrieved_at: '2026-09-09'
+    revision: w3c-namespace-snapshot-2026-09-09
+    last_modified: '2025-09-03T18:39:04Z'
+    etag: 'W/"10cbb-63de9eb477c1e"'
+    local_path: ontologies/w3c/prov-o.ttl
+    license: W3C-Document-License-2023
+    attribution: World Wide Web Consortium
+    status: downloaded
+  - id: w3c-dcat3
+    type: vocabulary
+    url: https://www.w3.org/ns/dcat3.ttl
+    retrieved_at: '2026-09-09'
+    revision: w3c-namespace-snapshot-2026-09-09
+    last_modified: '2025-09-03T18:39:04Z'
+    etag: 'W/"30e99-63de9eb4597be"'
+    local_path: ontologies/w3c/dcat3.ttl
+    license: W3C-Document-License-2023
+    attribution: World Wide Web Consortium
+    status: downloaded
+  - id: w3c-shacl
+    type: vocabulary
+    url: https://www.w3.org/ns/shacl.ttl
+    retrieved_at: '2026-09-09'
+    revision: w3c-namespace-snapshot-2026-09-09
+    last_modified: '2025-09-03T18:39:04Z'
+    etag: 'W/"cea3-63de9eb479b5e"'
+    local_path: ontologies/w3c/shacl.ttl
+    license: W3C-Document-License-2023
+    attribution: World Wide Web Consortium
+    status: downloaded
+  - id: roto-domain-seed-v1
+    type: knowledge-graph-seed
+    local_path: graph/seeds/roto-domain-seed.v1.jsonl
+    license: project-internal
+    status: curated
+graph_deployment:
+  manifest: graph/deployment-manifest.yaml
+  runtime_paid_api_required: false
+  runtime_external_query_required: false
+  selected_sources:
+    - qudt
+    - iof-core
+    - w3c-prov-o
+    - w3c-dcat3
+    - w3c-shacl
+    - roto-domain-seed-v1
 project_contracts:
   - id: roto-prd
     external_path: E:/Project/ROTO/docs/PRD-LLM-RAG-Topology-Optimization-Agent.md
@@ -149,6 +198,13 @@ project_contracts:
     external_path: E:/Project/ROTO/docs/SDD-LLM-RAG-Topology-Optimization-Agent.md
   - id: roto-t02
     external_path: E:/Project/ROTO/docs/tasks/T02-RAG知识索引与参数校验.md
+research_inputs:
+  - id: roto-external-graph-research
+    external_path: E:/Project/ROTO/docs/外部知识图谱调研与ROTO知识库种子.md
+  - id: roto-graph-seed-research-output
+    external_path: E:/Project/ROTO/data/rag/knowledge_graph_seed.jsonl
+  - id: roto-graph-source-research-output
+    external_path: E:/Project/ROTO/data/rag/knowledge_source_manifest.json
 optional_extractors:
   - id: scibert
     type: pretrained-language-model

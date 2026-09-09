@@ -2,10 +2,10 @@
 
 | 属性 | 内容 |
 |---|---|
-| 文档版本 | SDD v1.0 |
-| 日期 | 2026-09-08 |
+| 文档版本 | SDD v1.1 |
+| 日期 | 2026-09-09 |
 | 状态 | 开发设计基线，尚未进入实现/部署 |
-| 对齐 PRD | `docs/PRD.md` v1.2 |
+| 对齐 PRD | `docs/PRD.md` v1.3 |
 | 仓库 | `https://github.com/Serendipity-Zzz/roto-kb` |
 | 主线契约 | ROTO `EvidencePackage v1` / `RagService` |
 | 模型供应商 | 阿里云百炼 Model Studio（DashScope） |
@@ -54,6 +54,7 @@
 | 安全、监控、备份、部署 | 14-17 | KB-501、KB-502、KB-503 |
 | ROTO 主线联调 | 11、18 | KB-601、KB-602 |
 | 后续补充知识内容 | 13 | KB-701、KB-702、KB-703 |
+| 外部图谱离线种子 | 7.5、9.3 | KB-204、KB-701 |
 
 ## 3. 系统架构
 
@@ -352,6 +353,8 @@ V1 parser：
 | PDF | PyMuPDF 按页提取，保留页码 | 空页/扫描件标记；V1 不做 OCR |
 | RDF/OWL/TTL | rdflib 解析类、属性、label、comment 和 URI | 语法合法、namespace 可追踪 |
 
+RDF parser 必须关闭网络解析：`owl:imports` 仅记录为 metadata，不自动下载或推理。XML 外部实体和 DTD 禁用。每个 RDF source 设置三元组数、文件大小和解析时限；超过限制进入 quarantined。
+
 ### 7.3 切片
 
 优先按语义结构切片：章节、函数/配置块、材料条目、本体实体。超过目标长度才递归按段落和句子切分。默认目标 400 tokens、重叠 50、最小 50；代码块、表格行和 RDF 实体描述不得从中间截断。
@@ -367,6 +370,31 @@ V1 parser：
 - hash 改变：生成新 document version；旧版本只存在于历史 release。
 - disabled：staging 中排除，但 source 和审计记录保留。
 - parser/chunker/schema/Embedding 不兼容变化：全量重建，不伪装成增量。
+
+### 7.5 外部图谱离线编译
+
+图谱输入只来自 `knowledge/graph/deployment-manifest.yaml`。V1 固定选择 QUDT 白名单文件、IOF Core `Core.rdf`、W3C PROV-O/DCAT 3/SHACL 静态 TTL，以及 ROTO domain seed v1。任何未在清单中的 RDF/OWL/JSONL 即使位于 source 目录也不能进入 staging。
+
+```text
+deployment manifest
+ -> verify path/hash/license/source id
+ -> parse RDF without network imports / parse JSONL schema
+ -> normalize URI, label, alias, relation, confidence
+ -> namespace allowlist + duplicate URI check
+ -> dangling endpoint + provenance check
+ -> relation rows + entity search documents
+ -> staging evaluation
+```
+
+规范化输出分为：
+
+- `GraphEntity(entity_id, type, labels, aliases, domain, external_uri, source_refs, release_id)`。
+- `GraphRelation(source_id, predicate, target_id, confidence, evidence_refs, release_id)`。
+- `GraphRule(rule_id, body, requires, forbid_when, source_refs, release_id)`；规则只作为校验输入，不能执行任意代码。
+
+QUDT 允许提取单位、quantity kind、dimension vector、conversion multiplier/offset 及 label；IOF 只提取 Released Core 文件中的类、对象属性、label/comment 和显式关系，不运行 BFO/import closure；PROV-O/DCAT/SHACL 只提取 ROTO 使用的 vocabulary 子集和来源定义。原始快照完整保留用于追溯，运行时关系库只保存编译后的 allowlist 子集。
+
+图谱数据路径不调用 Materials Project、NOMAD、Materials Cloud、AFLOW、OQMD、Wikidata SPARQL 或其他在线数据 API。DashScope 仍用于文本向量化，但不是图谱 source；即使 DashScope 不可用，RDF/JSONL 图结构也能编译和通过确定性查询验收。
 
 ## 8. DashScope Provider 设计
 
@@ -406,9 +434,11 @@ collection 在 staging 创建，只允许按 release ID 写入。在线查询使
 
 使用 `rank-bm25`，中文用 jieba + 工程术语词典，英文保留大小写归一后的标识符整体词元，例如 `traction_bcs`、`vol_frac`、`filter_radius`。canonical tokenized corpus 保存为 JSONL/压缩文本并带 hash，进程启动时重建内存对象；禁止反序列化不可信 pickle。
 
-### 9.3 关系索引
+### 9.3 关系与图谱索引
 
-SQLite 表 `relations(source_doc_id, target_doc_id, relation_type, direction, confidence, evidence_chunk_id, release_id)`。V1 支持 depth=1 的出边/入边；`extracted` 可参与排序，`inferred/ambiguous` 只作为 related hint，不能成为工程参数唯一证据。
+SQLite 保存 `graph_entities`、`relations` 和 `graph_rules`。`relations(source_entity_id, target_entity_id, predicate, confidence, evidence_refs, release_id)` 的两端必须在同 release 存在；外部 URI 可作为 entity 的 `external_uri`，不能形成未登记悬空端点。V1 支持 depth=1 的出边/入边；`extracted` 可参与排序，`inferred/ambiguous` 只作为 related hint，不能成为工程参数唯一证据。
+
+实体 label/alias 同时生成小型检索文档进入 BM25；是否向量化由 `embedding_enabled` 配置控制。QUDT 全量单位标签默认只进入精确词典和图索引，避免大量相似单位说明淹没普通文档向量召回。
 
 ### 9.4 Catalog 与 release registry
 
@@ -528,6 +558,8 @@ rollback 只能指向产物和 snapshot 均可用的 release，复用 activate �
 
 每批知识变更必须包含 source 文件或稳定 URL、manifest 记录、license/attribution、domain/security scope、checksum，以及至少一个新增或更新的检索评测 case。允许先提交 `quarantined`，但不能激活。
 
+外部图谱批次还必须更新 `knowledge/graph/deployment-manifest.yaml`，并通过 RDF/JSONL 语法、namespace、重复 URI、悬空关系、license notice 和无网络 import 测试。需要 API key、在线查询或记录级许可未确认的数据只能登记为 disabled connector，不能进入 active release。
+
 ```text
 新增资料 PR
  -> manifest/schema/checksum/license CI
@@ -637,5 +669,6 @@ G0 文档基线
 | ADR-004 | Qdrant + BM25 + depth=1 relations，RRF 融合 | accepted |
 | ADR-005 | staging release 评测后人工激活，默认不自动 activate | accepted |
 | ADR-006 | 内容可以后补，但 metadata/license/eval gate 同步执行 | accepted |
+| ADR-007 | V1 图谱只使用六组离线、许可明确的静态内容，不依赖付费图谱 API | accepted |
 
 首次真实索引前仍需确认：DashScope API key 地域、最终 Embedding 模型与维度、是否启用 DashScope LLM 辅助摘要/关系抽取。上述事项不影响当前 SDD 和空库契约开发。

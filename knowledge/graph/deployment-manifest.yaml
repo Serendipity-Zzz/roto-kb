@@ -1,0 +1,73 @@
+schema_version: roto-graph-deployment.v1
+generated_at: '2026-09-09'
+policy:
+  requires_paid_api: false
+  requires_external_data_api_key: false
+  offline_parse_only: true
+  unresolved_imports: parse_labels_without_network_reasoning
+  checksum_file: ../checksums.sha256
+selected:
+  - id: qudt-core
+    license: CC-BY-4.0
+    role: units-quantity-kinds-dimensions
+    ingest_mode: allowlisted-rdf-files
+    files:
+      - ../ontologies/qudt/src/main/rdf/schema/SCHEMA_QUDT.ttl
+      - ../ontologies/qudt/src/main/rdf/vocab/unit/VOCAB_QUDT-UNITS-ALL.ttl
+      - ../ontologies/qudt/src/main/rdf/vocab/quantitykinds/VOCAB_QUDT-QUANTITY-KINDS-ALL.ttl
+      - ../ontologies/qudt/src/main/rdf/vocab/dimensionvectors/VOCAB_QUDT-DIMENSION-VECTORS.ttl
+  - id: iof-core-released
+    license: MIT
+    role: industrial-artifact-process-terminology
+    ingest_mode: labels-comments-relations-without-remote-import-reasoning
+    files:
+      - ../ontologies/iof-core/core/Core.rdf
+  - id: w3c-prov-o
+    license: W3C-Document-License-2023
+    role: provenance-relations
+    ingest_mode: rdf-vocabulary
+    files:
+      - ../ontologies/w3c/prov-o.ttl
+  - id: w3c-dcat3
+    license: W3C-Document-License-2023
+    role: source-catalog-and-distribution-metadata
+    ingest_mode: rdf-vocabulary
+    files:
+      - ../ontologies/w3c/dcat3.ttl
+  - id: w3c-shacl
+    license: W3C-Document-License-2023
+    role: validation-vocabulary
+    ingest_mode: vocabulary-only-local-shapes-separate
+    files:
+      - ../ontologies/w3c/shacl.ttl
+  - id: roto-domain-seed-v1
+    license: project-internal
+    role: roto-domain-aliases-mappings-and-safety-rules
+    ingest_mode: validated-jsonl
+    files:
+      - seeds/roto-domain-seed.v1.jsonl
+excluded_from_v1:
+  - id: materials-project-api
+    reason: api-key-and-service-dependency
+  - id: nomad
+    reason: api-or-record-level-license-review
+  - id: materials-cloud
+    reason: record-level-license-and-online-data-selection
+  - id: aflow
+    reason: service-terms-and-online-api-dependency
+  - id: oqmd
+    reason: endpoint-health-and-service-terms-unresolved
+  - id: ieee1872-cora
+    reason: repository-has-no-declared-redistribution-license
+  - id: propnet
+    reason: license-noassertion
+  - id: matonto
+    reason: no-clear-repository-license
+  - id: wikidata
+    reason: full-dump-is-large-and-domain-noisy
+  - id: aiida
+    reason: software-framework-not-required-graph-content
+  - id: common-core-ontologies
+    reason: duplicates-upper-ontology-and-increases-mapping-conflicts
+  - id: obo-ro
+    reason: biomedical-scope-and-low-v1-value

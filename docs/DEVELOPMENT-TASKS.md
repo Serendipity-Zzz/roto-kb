@@ -153,10 +153,10 @@ G2 出口：不调用模型即可从 seed source 生成可追踪 document/chunk 
 |---|---|
 | 依赖 | KB-101、KB-103 |
 | 修改范围 | `indexes/relations.py`、SQLite schema |
-| 输出 | 双向 depth=1 graph adapter；manual/extracted/inferred confidence |
-| 实现 | V1 确定性路径/引用/manifest 关系；DashScope LLM 辅助默认关闭 |
-| 测试 | 出边、入边、重复边、悬空文档、release/security filter |
-| 验收 | inferred/ambiguous 只能作为提示，不作为参数唯一来源 |
+| 输出 | RDF/JSONL 离线 compiler；entity/relation/rule store；双向 depth=1 graph adapter |
+| 实现 | 只读 deployment manifest 白名单；禁网络 `owl:imports`；QUDT/IOF/W3C/ROTO seed 规范化；DashScope LLM 辅助默认关闭 |
+| 测试 | RDF/XML/TTL/JSONL、XXE/DTD、重复 URI、悬空端点、未知 source_ref、三元组上限、release/security filter |
+| 验收 | 不配置任何图谱 API key 也能完成编译；inferred/ambiguous 只作提示；材料数值不能由概念图产生 |
 | 回滚 | relations 可由 source/chunk 重建 |
 
 G3 出口：fixture release 可同时构建向量、BM25、relations，三个索引均有独立故障测试。
@@ -316,8 +316,8 @@ G6 出口：只在实际部署和隔离证据完成后成立；当前明确暂�
 | 依赖 | G2；可在 G5 前准备但不可上线 |
 | 修改范围 | `knowledge/`、manifest、checksums、eval cases |
 | 输出 | 可审计的 source batch |
-| 实现 | 来源、revision、license、attribution、domain、scope、hash；不确定则 quarantined |
-| 测试 | manifest/schema/checksum/license CI；secret/大文件扫描 |
+| 实现 | 来源、revision、license、attribution、domain、scope、hash；图谱使用 deployment allowlist；不确定则 quarantined |
+| 测试 | manifest/schema/checksum/license、RDF no-network-import、JSONL graph integrity CI；secret/大文件扫描 |
 | 验收 | 每批至少一个代表性检索 case；不提交生成索引 |
 | 回滚 | revert 内容 PR；已上线则走 KB-702 disabled + 新 release |
 
