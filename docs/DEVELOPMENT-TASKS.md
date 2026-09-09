@@ -420,7 +420,7 @@ G6 出口：只在实际部署和隔离证据完成后成立；当前明确暂�
 
 ### D-014 443 TLS 与公网边界
 
-依赖：KB-011、用户提供域名/证书方式。输出：nginx 443 配置、80 redirect/ACME 配置、firewall/security-group 变更说明。验收：仅 443 对公网开放；8710/6334 loopback；TLS 1.2+、证书 SAN、HSTS、限流、请求体/超时限制；80 不代理业务 Authorization；管理路由仍需 admin token。
+依赖：KB-011、用户提供 IP-SAN 证书或临时自签名验收方式。输出：nginx 443 配置、80 旧服务保留策略、firewall/security-group 变更说明。验收：仅 443 对公网提供 ROTO-KB；8710/6334 loopback；TLS 1.2+、证书 SAN 包含 `54.172.101.190`、HSTS、限流、请求体/超时限制；80 不代理 ROTO-KB 业务 Authorization；管理路由仍需 admin token。
 
 ### D-015 部署、隔离和恢复演练
 
