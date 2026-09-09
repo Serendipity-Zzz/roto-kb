@@ -19,8 +19,10 @@ deployment:
   qdrant_port: 6334
   public_path: /roto-kb/
   public_port: 443
+  public_base_url: https://54.172.101.190/roto-kb
   tls_required_for_production: true
-  http_port_policy: acme-or-redirect-only
+  certificate_policy: ip-san-required
+  http_port_policy: legacy-root-preserved-no-roto-kb-proxy
 model_api:
   provider: alibaba-cloud-model-studio-dashscope
   protocol: openai-compatible

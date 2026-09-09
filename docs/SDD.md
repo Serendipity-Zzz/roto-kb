@@ -638,7 +638,7 @@ Bearer read/admin token 只保存 hash，常量时间比较。Qdrant 使用独�
 
 ## 17. 部署与恢复设计
 
-生产采用 hybrid：`roto-kb.service` 管 FastAPI，Docker 管独立 Qdrant，nginx 在 TCP 443 终止 TLS 并代理 `/roto-kb/`。Qdrant 映射 `127.0.0.1:6334 -> container:6333`，持久化到 `/data/roto-kb/qdrant`；应用监听 `127.0.0.1:8710`。nginx 配置固定为 `/etc/nginx/sites-available/roto-kb.conf`（启用链接 `/etc/nginx/sites-enabled/roto-kb.conf`），证书使用 `/etc/letsencrypt/live/<domain>/` 或等价的 root-only 目录。80 仅做 ACME challenge/HTTP 到 HTTPS 跳转，不能代理 API 的明文流量；若旧 `kb-server` 保留根路径，必须保持其原有 80 server block，不把根路径重写到 `/roto-kb/`。
+生产采用 hybrid：`roto-kb.service` 管 FastAPI，Docker 管独立 Qdrant，nginx 在 TCP 443 终止 TLS 并代理 `/roto-kb/`。公网基址固定为 `https://54.172.101.190/roto-kb/`，证书必须包含 IP SAN `54.172.101.190`。Qdrant 映射 `127.0.0.1:6334 -> container:6333`，持久化到 `/data/roto-kb/qdrant`；应用监听 `127.0.0.1:8710`。nginx 配置固定为 `/etc/nginx/sites-available/roto-kb.conf`（启用链接 `/etc/nginx/sites-enabled/roto-kb.conf`），证书和私钥使用 `/etc/roto-kb/tls/` 的 root-only 文件。80 保留旧服务根路径，不代理 ROTO-KB 业务，不依赖域名 ACME challenge。
 
 防火墙边界：AWS Security Group 只允许 TCP 443（HTTP-01 续期窗口可临时允许 80）；若服务器启用 UFW，则只允许 `443/tcp`，不允许 8710/6334。应用与 Qdrant 永远绑定 loopback。证书续期使用 `certbot renew --deploy-hook "nginx -t && systemctl reload nginx"` 或等价 hook；续期失败进入告警，不自动切换到自签名证书。
 
@@ -646,7 +646,7 @@ Bearer read/admin token 只保存 hash，常量时间比较。Qdrant 使用独�
 
 运维单元固定为：`/etc/systemd/system/roto-kb.service`（应用）、`/etc/systemd/system/roto-kb-lint.service`（一次性巡检）和 `/etc/systemd/system/roto-kb-lint.timer`（`OnCalendar=weekly`，默认每 7 天）；timer 通过 `systemctl enable --now roto-kb-lint.timer` 启用。巡检 unit 使用 `/home/ec2-user/roto-kb/scripts/inspect_release.py`，工作目录和输出均限制在 `/data/roto-kb`、`/var/log/roto-kb`。
 
-部署验收必须证明：443 仅由 nginx 监听；8710/6334 只绑定 loopback；TLS 证书 SAN 覆盖访问域名；TLS 1.0/1.1 和弱密码套件被拒绝；缺少 read/admin token 分别返回 401/403；管理接口不会被匿名公网访问；80 不接受带 Authorization 的业务请求；旧 `kb-server` 的根路径、进程、端口和数据目录前后不变。
+部署验收必须证明：443 仅由 nginx 监听；8710/6334 只绑定 loopback；TLS 证书 SAN 覆盖 `54.172.101.190` IP；TLS 1.0/1.1 和弱密码套件被拒绝；缺少 read/admin token 分别返回 401/403；管理接口不会被匿名公网访问；80 不接受带 Authorization 的业务请求；旧 `kb-server` 的根路径、进程、端口和数据目录前后不变。
 
 备份按同一 release 打包 source manifest、BM25/relations、registry 和 Qdrant snapshot。恢复必须校验 hash、模型/维度和 eval smoke query；仅恢复 Qdrant snapshot 不构成完整恢复。
 

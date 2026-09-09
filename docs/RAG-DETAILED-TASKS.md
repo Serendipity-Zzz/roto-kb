@@ -2,7 +2,7 @@
 
 | 属性 | 内容 |
 |---|---|
-| 文档版本 | v1.0 |
+| 文档版本 | v1.1 |
 | 对齐文档 | `docs/PRD.md` v1.4、`docs/SDD.md` v1.2 |
 | 参考输入 | `知识库服务子任务设计文档.md`（M1-M14、T1.1-T14.3） |
 | 目标 | 将 RAG 服务做成可独立开发、可独立发布、可恢复、可通过 443 安全访问的服务 |
@@ -275,9 +275,9 @@ G1-G4 可以先使用 fake provider 和 fixture；G6 需要用户明确允许服
 
 ### KB-603 nginx 443/TLS 与防火墙
 
-- 依赖：KB-602、域名和证书方式。
-- 输出：`/etc/nginx/sites-available/roto-kb.conf`、对应 `sites-enabled` 链接、443 server block、80 ACME/redirect、TLS policy、firewall/security-group 规则、证书续期 hook。
-- 验收：443 only public API；TLS 1.2+、SAN、HSTS、body/timeout/rate limits；80 不代理带 Authorization 的业务请求且旧根路径不变；`/roto-kb/health` 可探活；AWS/UFW 不暴露 8710/6334。
+- 依赖：KB-602、IP-SAN 证书或明确的临时自签名验收方式。
+- 输出：`/etc/nginx/sites-available/roto-kb.conf`、对应 `sites-enabled` 链接、`server_name 54.172.101.190` 的 443 server block、80 保留旧服务的策略、TLS policy、firewall/security-group 规则、证书替换 hook。
+- 验收：生产基址为 `https://54.172.101.190/roto-kb/`；TLS 1.2+、证书 SAN 包含 IP、HSTS、body/timeout/rate limits；80 不代理带 Authorization 的业务请求且旧根路径不变；`/roto-kb/health` 可探活；AWS/UFW 不暴露 8710/6334。自签名证书只能标记为临时验收，不得标记生产完成。
 - 回滚：移除仅 ROTO-KB nginx include，旧根路径不变。
 
 ### KB-604 Backup/restore 与 isolation check
@@ -342,4 +342,4 @@ KB-000..004
   -> KB-801..803
 ```
 
-可并行：KB-203/204、KB-303/304、KB-603/605、KB-701。不可并行：契约冻结前不得实现跨仓联调；服务器 443 变更前不得配置生产 secret；active release 评测前不得开放公网写接口。
+可并行：KB-203/204、KB-303/304、KB-603/605、KB-701。不可并行：契约冻结前不得实现跨仓联调；服务器 443 变更前不得配置生产 secret；active release 评测前不得开放公网写接口。公网基址固定为 `https://54.172.101.190/roto-kb/`，不依赖域名。

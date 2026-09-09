@@ -28,17 +28,17 @@
 
 ### 443 公网输入（部署前必须补齐）
 
-- 提供一个解析到 `54.172.101.190` 的 DNS A/AAAA 记录，例如 `kb.example.com`；证书 SAN 必须覆盖该主机名。
-- 选择证书方式：推荐 Certbot/ACME HTTP-01（需要 80 仅用于 challenge），或提供已签发证书与私钥。证书建议放在 `/etc/letsencrypt/live/<domain>/`，私钥权限 `0600`、owner `root:root`。
+- 生产基址固定为 `https://54.172.101.190/roto-kb/`，不依赖域名 DNS。证书 SAN 必须包含 IP `54.172.101.190`；若 CA 不支持 IP 证书，只能使用自签名证书做临时 `curl -k` 验收，不能长期承载 Bearer token。
+- 提供已签发的 IP-SAN 证书与私钥；建议放在 `/etc/roto-kb/tls/`，证书 `0644`、私钥 `0600`、owner `root:root`。`ladder.pem` 是 SSH 私钥，不是 TLS 证书，不能复用。
 - AWS Security Group 入站只放行 TCP 443；TCP 80 仅在使用 HTTP-01 或需要跳转时临时放行。UFW（如启用）同步设置 `allow 443/tcp`，不放行 8710/6334。
-- 旧 `kb-server` 已占用根路径/80 时，先保留旧 server block；ROTO-KB 只新增独立 443 `server_name` 和 `/roto-kb/` location。80 的 ACME/跳转规则必须确认不会把旧根路径请求代理到 ROTO-KB。
-- nginx 配置文件固定为 `/etc/nginx/sites-available/roto-kb.conf`，启用链接为 `/etc/nginx/sites-enabled/roto-kb.conf`；证书续期后执行 `nginx -t && systemctl reload nginx`。
+- 旧 `kb-server` 已占用根路径/80 时，先保留旧 server block；ROTO-KB 只新增独立 443 `server_name 54.172.101.190` 和 `/roto-kb/` location。80 不改代理关系，不做依赖域名的 ACME challenge。
+- nginx 配置文件固定为 `/etc/nginx/sites-available/roto-kb.conf`，启用链接为 `/etc/nginx/sites-enabled/roto-kb.conf`；证书替换后执行 `nginx -t && systemctl reload nginx`。
 
 这些输入未齐之前可以继续 G1-G5 的本地 fake/fixture 开发，但不能宣称公网 443 已上线。
 
 ## 公网生产前
 
-- 提供域名并启用 HTTPS；IP + HTTP 仅用于受限临时验收，不能长期承载 Bearer Token。
+- 使用 `https://54.172.101.190/roto-kb/` 并启用 HTTPS；IP + HTTP 仅用于受限临时验收，不能长期承载 Bearer Token。
 - 完成 Qdrant snapshot、source/manifest、BM25/relations、registry 的同 release 备份和恢复演练。
 - 完成新旧服务独立停止、reload、activate、rollback 验收；旧服务数据、进程、端口、目录和日志不变。
 
