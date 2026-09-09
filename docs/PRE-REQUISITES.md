@@ -22,9 +22,19 @@
 ## 服务器部署前
 
 - 明确允许对 `54.172.101.190` 做 Docker、nginx、systemd、目录和防火墙变更。
-- 只读检查 Docker、nginx、磁盘、端口和目标目录；记录旧 `kb-server` 的 health/进程/端口基线，不读取其知识内容。
+- 只读检查 Docker、nginx、磁盘、端口和目标目录；记录旧 `kb-server` 的 health/进程/端口基线，不读取其知识内容。2026-09-09 预检已完成：旧服务 health `ok`（498 docs/21684 chunks），应用 `127.0.0.1:8700`，nginx 仅现有 80 配置，443 未监听，Docker 未运行，根分区可用约 11 GB。
 - 创建 `/home/ec2-user/roto-kb`、`/data/roto-kb`、`/etc/roto-kb`、`/var/log/roto-kb` 独立命名空间，并通过隔离脚本验收。
 - 修复部署用 SSH 私钥 ACL：当前 `ladder.pem` 对 `Authenticated Users` 可读，Windows OpenSSH 会拒绝使用；原文件不要提交仓库。
+
+### 443 公网输入（部署前必须补齐）
+
+- 提供一个解析到 `54.172.101.190` 的 DNS A/AAAA 记录，例如 `kb.example.com`；证书 SAN 必须覆盖该主机名。
+- 选择证书方式：推荐 Certbot/ACME HTTP-01（需要 80 仅用于 challenge），或提供已签发证书与私钥。证书建议放在 `/etc/letsencrypt/live/<domain>/`，私钥权限 `0600`、owner `root:root`。
+- AWS Security Group 入站只放行 TCP 443；TCP 80 仅在使用 HTTP-01 或需要跳转时临时放行。UFW（如启用）同步设置 `allow 443/tcp`，不放行 8710/6334。
+- 旧 `kb-server` 已占用根路径/80 时，先保留旧 server block；ROTO-KB 只新增独立 443 `server_name` 和 `/roto-kb/` location。80 的 ACME/跳转规则必须确认不会把旧根路径请求代理到 ROTO-KB。
+- nginx 配置文件固定为 `/etc/nginx/sites-available/roto-kb.conf`，启用链接为 `/etc/nginx/sites-enabled/roto-kb.conf`；证书续期后执行 `nginx -t && systemctl reload nginx`。
+
+这些输入未齐之前可以继续 G1-G5 的本地 fake/fixture 开发，但不能宣称公网 443 已上线。
 
 ## 公网生产前
 

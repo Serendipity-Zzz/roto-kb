@@ -2,10 +2,12 @@
 
 | 属性 | 内容 |
 |---|---|
-| 文档版本 | v1.0 |
+| 文档版本 | v1.1 |
 | 日期 | 2026-09-09 |
-| 对齐 | `docs/PRD.md` v1.2、`docs/SDD.md` v1.0 |
-| 当前状态 | 仅规划，所有实现任务均未开始 |
+| 对齐 | `docs/PRD.md` v1.4、`docs/SDD.md` v1.2 |
+| 当前状态 | 粗粒度实施索引；详细 RAG 任务以 [`docs/RAG-DETAILED-TASKS.md`](./RAG-DETAILED-TASKS.md) 为准 |
+
+> 本文保留早期 KB-001..703 的实施索引；新增的 G0-G8 任务、端口/证书/隔离验收和回滚细节以 `RAG-DETAILED-TASKS.md`、`PRD.md` 和 `SDD.md` 为真源。
 
 ## 0. 使用方式
 
@@ -372,7 +374,63 @@ G6 出口：只在实际部署和隔离证据完成后成立；当前明确暂�
 10. CORA、PropNet、MatOnto 的文件导入和材料事实批次；三者已在 manifest 保留为 reference-only/link-and-map-only，不阻塞 G1-G4。
 11. 何时从 G0 进入 G1 实现，以及何时允许执行 G6 的服务器软件变更。
 
-## 11. 任务交接模板
+## 11. 详细设计对照补充任务
+
+参考设计文档包含 67 个 T1.1-T14.3 任务；本仓库原任务表将它们合并为较粗粒度 KB 任务。以下任务把尚未明确的技术细节拆开，作为实现时的执行清单，不改变现有阶段门。
+
+### D-004 跨仓契约冻结
+
+依赖：G0。输入：ROTO 主线 `contracts.py`、T02、`docs/PRD.md` 与 `docs/SDD.md`。输出：`contracts/evidence-package.v1.schema.json`、`contracts/openapi.yaml`、四类 response fixture、兼容性说明。验收：ROTO 与 ROTO-KB 均能离线校验；字段、错误码、`no_match`、降级列表和 citation 语义一致。回滚：新版本使用 `v2`，不覆盖已发布 v1。
+
+### D-005 内容目录与 parser 路由
+
+依赖：KB-001、KB-003。输入：source manifest、允许根目录、domain 映射。输出：scanner、parser registry、文件清单。验收：Markdown/TXT/HTML/PDF/RDF/OWL/TTL 路由可配置；代码文件只登记不默认切片；扫描拒绝符号链接逃逸、设备文件、旧知识库目录和父目录；PDF 扫描件标记 warning，V1 不 OCR。回滚：恢复上一 pipeline version。
+
+### D-006 结构切片与展示/检索分离
+
+依赖：KB-005。输出：稳定 `DocumentRecord`/`ChunkRecord`、章节路径、源行号、检索上下文前缀。验收：目标 300-500 token、重叠 50、最小 50；代码块/表格/RDF 实体不从中间截断；fetch 展示内容不包含隐藏前缀；相同输入和 pipeline version 产生相同 chunk ID。
+
+### D-007 离线图谱编译器
+
+依赖：KB-005、deployment manifest。输出：实体、关系、规则 SQLite/JSON 产物。验收：只读取白名单；禁网络 `owl:imports`、DTD/XXE；检查 namespace、重复 URI、悬空端点、source_refs、文件大小和三元组上限；CORA/PropNet/MatOnto 默认不进入 active。
+
+### D-008 Embedding provider 与能力探针
+
+依赖：KB-003、KB-006。输出：DashScope probe/embed adapter、cache、重试和熔断。验收：API key 缺失时 fake/empty 模式可启动；真实构建前 probe 记录地域、模型和维度；401/403 不重试，429/5xx/timeout 有上限退避；日志不含原文和密钥。
+
+### D-009 Qdrant release adapter
+
+依赖：KB-008。输出：独立 Server collection/alias/snapshot adapter。验收：只操作 `roto_kb_` 前缀；向量维度、距离和 payload 三方一致；staging 写入不影响 active；alias 切换可回滚；不使用参考文档中的嵌入式 Qdrant。
+
+### D-010 BM25、关系和 RRF
+
+依赖：KB-006、KB-007、KB-009。输出：jieba/标识符 tokenizer、BM25、depth=1 relations、RRF 聚合。验收：中英混合和工程标识符精确命中；RRF `k=60` 可配置；权限过滤发生在每一路候选阶段；单路故障返回可识别降级原因。
+
+### D-011 API 与渐进式加载
+
+依赖：KB-004、KB-010。输出：`health/browse/search/fetch/graph/help/lint`。验收：空库 `rel_empty`、分页、章节 fetch、大小限制、404、统一错误结构和 read/admin scope 全通过；`/help` 与 OpenAPI 一致。
+
+### D-012 Release builder 与任务恢复
+
+依赖：KB-011。输出：incremental/full/`evolve=false` 三种 build，lease、checkpoint、resume、cancel。验收：同 idempotency key 幂等；单 build 并发；中途崩溃标记 interrupted；失败不改变 active；重试不重复 Embedding 计费。
+
+### D-013 自进化与反馈接口
+
+依赖：KB-012。输出：`/evolve/status`、`/evolve/suggestions`、`/evolve/apply`、`/evolve/dismiss`、`/evolve/log`、`/feedback`。验收：阈值和报告可追溯；合并/分裂只产生人工建议；dismiss 按 source hash 抑制重复；feedback 在下次增量 build 优先处理。
+
+### D-014 443 TLS 与公网边界
+
+依赖：KB-011、用户提供域名/证书方式。输出：nginx 443 配置、80 redirect/ACME 配置、firewall/security-group 变更说明。验收：仅 443 对公网开放；8710/6334 loopback；TLS 1.2+、证书 SAN、HSTS、限流、请求体/超时限制；80 不代理业务 Authorization；管理路由仍需 admin token。
+
+### D-015 部署、隔离和恢复演练
+
+依赖：KB-014、KB-012。输出：systemd、Docker compose、备份恢复、isolation-check、runbook。验收：新旧服务独立；旧服务 health/count/process/port/path 不变；active/previous release 可恢复；snapshot、BM25、relations、manifest 同 release 校验通过。
+
+### D-016 主线联调
+
+依赖：KB-004、KB-011、KB-015。输出：FakeRagService、RemoteRagClient、双仓 contract/e2e 报告。验收：timeout/401/403/429/503/no-match/degraded、citation 和 release ID 全覆盖；RAG 失败不阻塞 loop，不直接触发 solver。
+
+## 12. 任务交接模板
 
 ```markdown
 Task: KB-xxx

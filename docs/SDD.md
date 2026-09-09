@@ -484,9 +484,16 @@ RRF 使用 `score(d) = sum(1/(k + rank_i(d)))`，默认 `k=60`。融合发生在
 | POST | `/search` | read | 混合召回 |
 | GET | `/fetch/{doc_id}` | read | 文档或章节读取 |
 | GET | `/graph/{doc_id}` | read | 关系查询 |
+| GET | `/help` | read | 机器可读接口说明和版本 |
 | POST | `/reload` | admin | 创建异步 staging build job |
 | GET | `/builds/{job_id}` | admin | 查询构建阶段和报告 |
 | GET | `/lint` | admin | source/release 质量报告 |
+| GET | `/evolve/status` | admin | 自进化状态和待处理建议统计 |
+| GET | `/evolve/suggestions` | admin | 查看合并/分裂建议 |
+| POST | `/evolve/apply` | admin | 人工批准后执行建议 |
+| POST | `/evolve/dismiss` | admin | 驳回建议并记录原因 |
+| GET | `/evolve/log` | admin | 查询自进化审计日志 |
+| POST | `/feedback` | read | 记录文档过时/不够用反馈 |
 | GET | `/releases` | admin | release 列表和状态 |
 | POST | `/releases/{id}/activate` | admin | 激活 ready release |
 | POST | `/releases/{id}/rollback` | admin | 回滚到指定可恢复 release |
@@ -515,6 +522,14 @@ RRF 使用 `score(d) = sum(1/(k + rank_i(d)))`，默认 `k=60`。融合发生在
 ```
 
 相同 idempotency key + 相同 payload 返回原 job；同 key 不同 payload 返回 `409 knowledge.idempotency_conflict`。V1 默认禁止 `auto_activate=true`。
+
+### 11.1 参考设计补充：reload 与自进化语义
+
+`reload` 必须区分三种模式：`mode=incremental` 只处理 source manifest 中新增、hash 变化、停用和受反馈标记的 source；`mode=full` 重建 staging 全量索引，用于索引损坏或 parser/chunker/schema/embedding 不兼容升级；`evolve=false` 只执行确定性扫描、解析、切片、索引和 lint，跳过摘要重生成、LLM 关系和合并/分裂建议。
+
+`evolve=true` 或 `mode=full` 异步执行。任务状态至少包括 `pending/running/completed/failed/interrupted/cancelled`，阶段包括 `detect/identify/compile/verify/persist`，并记录 `processed/total/started_at/finished_at/report`。同一时间只允许一个 build lease；冲突返回 409，不排队。服务重启后不得假称任务仍在运行，必须从 checkpoint 标记为 `interrupted`，由 admin 显式 resume 或重新构建。`rel_empty` 不对应 Qdrant collection，首次真实 release 必须完整 build/validate/activate。
+
+自进化阈值必须配置化并写入报告：潜在重复向量相似度 `0.92`；合并候选相似度 `0.88` 且文本重叠 `0.60`；内容变化超过 `0.20` 触发摘要重生成；文档超过 `15000` 字且主题数不少于 `3` 产生分裂建议；摘要验证相似度低于 `0.70` 拒绝。合并和分裂只能生成建议，不能自动修改原始 source；人工 apply 后生成新 release。`/help` 返回当前 API、schema 版本、鉴权 scope、请求限制和错误码；`/feedback` V1 只写入审计日志并在下一次增量 build 优先处理；`/evolve/dismiss` 保存拒绝原因，并以 source hash 作为重新评估条件。
 
 错误统一为：
 
@@ -623,9 +638,15 @@ Bearer read/admin token 只保存 hash，常量时间比较。Qdrant 使用独�
 
 ## 17. 部署与恢复设计
 
-生产采用 hybrid：`roto-kb.service` 管 FastAPI，Docker 管独立 Qdrant，nginx 管 `/roto-kb/`。Qdrant 映射 `127.0.0.1:6334 -> container:6333`，持久化到 `/data/roto-kb/qdrant`；应用监听 `127.0.0.1:8710`。
+生产采用 hybrid：`roto-kb.service` 管 FastAPI，Docker 管独立 Qdrant，nginx 在 TCP 443 终止 TLS 并代理 `/roto-kb/`。Qdrant 映射 `127.0.0.1:6334 -> container:6333`，持久化到 `/data/roto-kb/qdrant`；应用监听 `127.0.0.1:8710`。nginx 配置固定为 `/etc/nginx/sites-available/roto-kb.conf`（启用链接 `/etc/nginx/sites-enabled/roto-kb.conf`），证书使用 `/etc/letsencrypt/live/<domain>/` 或等价的 root-only 目录。80 仅做 ACME challenge/HTTP 到 HTTPS 跳转，不能代理 API 的明文流量；若旧 `kb-server` 保留根路径，必须保持其原有 80 server block，不把根路径重写到 `/roto-kb/`。
 
-部署顺序：预检目录/端口/磁盘/Docker -> 拉取固定代码和依赖 -> 配置 secret -> 启动/校验 Qdrant -> 启动应用 -> empty/active smoke test -> nginx path 验证。代码部署不得自动 reload 或 activate 知识 release。
+防火墙边界：AWS Security Group 只允许 TCP 443（HTTP-01 续期窗口可临时允许 80）；若服务器启用 UFW，则只允许 `443/tcp`，不允许 8710/6334。应用与 Qdrant 永远绑定 loopback。证书续期使用 `certbot renew --deploy-hook "nginx -t && systemctl reload nginx"` 或等价 hook；续期失败进入告警，不自动切换到自签名证书。
+
+部署顺序：预检目录/端口/磁盘/Docker/443 -> 确认 DNS/SAN 和 Security Group/UFW -> 拉取固定代码和依赖 -> 配置 secret -> 配置证书和 nginx -> `nginx -t` -> 启动/校验 Qdrant -> 启动应用 -> empty/active smoke test -> HTTPS、证书链、HTTP 跳转和 nginx path 验证。代码部署不得自动 reload 或 activate 知识 release。
+
+运维单元固定为：`/etc/systemd/system/roto-kb.service`（应用）、`/etc/systemd/system/roto-kb-lint.service`（一次性巡检）和 `/etc/systemd/system/roto-kb-lint.timer`（`OnCalendar=weekly`，默认每 7 天）；timer 通过 `systemctl enable --now roto-kb-lint.timer` 启用。巡检 unit 使用 `/home/ec2-user/roto-kb/scripts/inspect_release.py`，工作目录和输出均限制在 `/data/roto-kb`、`/var/log/roto-kb`。
+
+部署验收必须证明：443 仅由 nginx 监听；8710/6334 只绑定 loopback；TLS 证书 SAN 覆盖访问域名；TLS 1.0/1.1 和弱密码套件被拒绝；缺少 read/admin token 分别返回 401/403；管理接口不会被匿名公网访问；80 不接受带 Authorization 的业务请求；旧 `kb-server` 的根路径、进程、端口和数据目录前后不变。
 
 备份按同一 release 打包 source manifest、BM25/relations、registry 和 Qdrant snapshot。恢复必须校验 hash、模型/维度和 eval smoke query；仅恢复 Qdrant snapshot 不构成完整恢复。
 

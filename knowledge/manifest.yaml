@@ -18,6 +18,9 @@ deployment:
   app_port: 8710
   qdrant_port: 6334
   public_path: /roto-kb/
+  public_port: 443
+  tls_required_for_production: true
+  http_port_policy: acme-or-redirect-only
 model_api:
   provider: alibaba-cloud-model-studio-dashscope
   protocol: openai-compatible
