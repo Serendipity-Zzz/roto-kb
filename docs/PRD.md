@@ -4,10 +4,10 @@
 |---|---|
 | 产品 | ROTO（Robot-Oriented Topology Optimization Agent） |
 | 子系统 | ROTO-KB：结构优化工程知识服务 |
-| 文档版本 | PRD v1.3 |
+| 文档版本 | PRD v1.4 |
 | 日期 | 2026-09-09 |
 | 状态 | 独立仓库设计基线，可与主线 Loop Engineering 并行 |
-| 上游 | ROTO 总 PRD/SDD、T02 RAG 契约 |
+| 上游 | ROTO 总 PRD/SDD、T02 RAG 契约；首次部署前需提供可发布的契约快照 |
 | 下游 | `rag_subgraph`、参数抽取、Policy、报告和事件投影 |
 | 独立仓库 | 本地 `E:\Project\ROTO-KB`；远端 `https://github.com/Serendipity-Zzz/roto-kb` |
 
@@ -182,10 +182,12 @@ release 对应物理 collection `roto_kb_<release_id>`，线上只通过 alias `
 
 这些内容无需 API key，可随知识 source 同步到服务器后由 `rdflib/JSONL` 离线编译。解析器禁止递归扫描整个本体仓库，也禁止在 build 期间联网解析 `owl:imports`；只读取清单白名单，外部 URI 作为标识保存。
 
-以下候选不进入 V1 active release：
+以下候选保留为 `reference-only`，默认不进入 V1 active release：
 
 - Materials Project、NOMAD、Materials Cloud、AFLOW、OQMD：移为未来可选 connector 或人工审核的离线数据批次，不承担启动和查询依赖。
-- IEEE 1872 CORA、MatOnto、PropNet：许可证或再分发权不明确，只保留调研链接，不复制本体。
+- IEEE 1872 CORA：上游 README 声明 OWL 实现为 CC BY-4.0；保留来源和版权声明，可在后续离线白名单批次启用，但不作为 V1 启动依赖。
+- PropNet：上游 LICENSE 允许源码/二进制再分发；保留 LICENSE 和归属，默认只登记模型/术语映射，不执行模型或导入未经核对的依赖数据。
+- MatOnto：仓库未发现明确标准许可证；只保留链接、revision 和内部 URI 映射，不复制 OWL。
 - Wikidata：不下载全量 dump，也不依赖 SPARQL API；少量别名由 ROTO 自有种子维护。
 - AiiDA、Common Core Ontologies、OBO RO：分别因属于软件框架、上位本体重叠或领域噪声而暂缓。
 
@@ -482,12 +484,24 @@ pull request
 
 ## 13. 需要用户确认/执行的事项
 
-仓库已提供，模型供应商已确定为阿里云。当前剩余决策不阻塞 SDD、空库骨架和接口开发，但会阻塞首次真实向量索引：
+仓库已提供，模型供应商已确定为阿里云。当前有一项必须先完成的契约前置，以及若干不阻塞空库开发、但会阻塞首次真实索引或公网部署的决策：
 
-1. 在首次索引前确认阿里云账号地域、最终 Embedding 模型和维度；默认建议中国内地 endpoint + `text-embedding-v4`，维度由 capability probe 校验。不要在聊天中粘贴 API key。
-2. 确认是否由本任务自动生成 `ROTO_KB_READ_TOKEN`、`ROTO_KB_ADMIN_TOKEN` 和 `QDRANT_API_KEY` 并直接写入服务器 `/etc/roto-kb/roto-kb.env`；明文不会写入仓库或回复。
-3. 确认当前阶段是只完成 PRD/仓库基线，还是继续实现并部署 R0-R4。部署前需确认服务器已安装 Docker；若没有，部署脚本可负责安装，但这属于服务器软件变更。
-4. 当前可先使用 IP + HTTP；正式给外部调用方使用前需提供域名，或明确接受 HTTP 下 Bearer Token 可被链路窃听的风险。推荐先限制来源 IP，域名就绪后启用 HTTPS。
+### 13.1 现在必须完成（阻塞跨仓实现）
+
+1. **固化跨仓契约**：ROTO 主线当前 `EvidenceSnippet` 仍使用 `source`，`EvidencePackage` 仍使用单个 `degradation_reason`；本仓 SDD 要求 `source_uri/source_hash/document_version/security_scope`、`no_match` 和 `degradation_reasons[]`。在 KB-002/KB-601 开始前，必须由两仓共同确定 v1 字段，提交 `contracts/` 下的 JSON Schema、OpenAPI 和 success/empty/degraded/error fixtures，并让两仓 CI 离线通过。不能让服务器依赖 `E:/Project/ROTO/...` Windows 绝对路径。
+2. **决定项目契约交付方式**：推荐从 ROTO 主仓发布带 commit/SHA-256 的 `project-contracts` 快照；如果暂不复制全文，至少发布可解析的 Schema/OpenAPI/fixture。当前外部路径仅适合本机开发，不能作为远端 release 的 source。
+3. **保护 GitHub 主分支**：`roto-kb` 当前为 public 且 `main` 未启用 branch protection；需启用 PR、CI 必过和 secret scanning，并确认 `.pem/.env/生成索引/模型权重` 不入库。
+
+4. 在首次索引前确认阿里云账号地域、最终 Embedding 模型和维度；默认建议中国内地 endpoint + `text-embedding-v4`，维度由 capability probe 校验。不要在聊天中粘贴 API key。
+5. 确认是否由本任务自动生成 `ROTO_KB_READ_TOKEN`、`ROTO_KB_ADMIN_TOKEN` 和 `QDRANT_API_KEY` 并直接写入服务器 `/etc/roto-kb/roto-kb.env`；明文不会写入仓库或回复。
+6. 确认当前阶段是只完成文档/契约和 G1-G4 本地实现，还是继续实现并部署 G5-G6。服务器变更前需完成 Docker/nginx/磁盘/端口只读预检；本地 `ladder.pem` 当前 ACL 过宽，OpenSSH 会拒绝使用，需要你在部署时收紧密钥权限或提供合规的 SSH 凭据。
+7. 当前可先使用 IP + HTTP 做受限验收；正式给外部调用方使用前需提供域名并启用 HTTPS，不能把 Bearer Token 长期放在明文 HTTP 上。
+
+### 13.3 可以后补（不阻塞空库和契约开发）
+
+- CORA、PropNet、MatOnto 的实际文件导入；先保持 reference-only/link-and-map-only。
+- 材料牌号和实验属性数据；必须另有带条件、单位、来源和许可的离线批次。
+- SciBERT、MatSciBERT 权重和任何 Hunyuan3D 组件；不属于 V1 RAG 部署。
 
 ## 14. 风险与决策记录
 

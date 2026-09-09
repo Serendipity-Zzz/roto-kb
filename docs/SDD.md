@@ -2,10 +2,10 @@
 
 | 属性 | 内容 |
 |---|---|
-| 文档版本 | SDD v1.1 |
+| 文档版本 | SDD v1.2 |
 | 日期 | 2026-09-09 |
-| 状态 | 开发设计基线，尚未进入实现/部署 |
-| 对齐 PRD | `docs/PRD.md` v1.3 |
+| 状态 | 开发设计基线；契约对齐和部署前置待完成 |
+| 对齐 PRD | `docs/PRD.md` v1.4 |
 | 仓库 | `https://github.com/Serendipity-Zzz/roto-kb` |
 | 主线契约 | ROTO `EvidencePackage v1` / `RagService` |
 | 模型供应商 | 阿里云百炼 Model Studio（DashScope） |
@@ -373,7 +373,7 @@ RDF parser 必须关闭网络解析：`owl:imports` 仅记录为 metadata，不�
 
 ### 7.5 外部图谱离线编译
 
-图谱输入只来自 `knowledge/graph/deployment-manifest.yaml`。V1 固定选择 QUDT 白名单文件、IOF Core `Core.rdf`、W3C PROV-O/DCAT 3/SHACL 静态 TTL，以及 ROTO domain seed v1。任何未在清单中的 RDF/OWL/JSONL 即使位于 source 目录也不能进入 staging。
+图谱输入只来自 `knowledge/graph/deployment-manifest.yaml`。V1 active 固定选择 QUDT 白名单文件、IOF Core `Core.rdf`、W3C PROV-O/DCAT 3/SHACL 静态 TTL，以及 ROTO domain seed v1。CORA 和 PropNet 作为可选 `reference-only` source，MatOnto 作为 `link-and-map-only` source；任何未在清单中的 RDF/OWL/JSONL 即使位于 source 目录也不能进入 staging。
 
 ```text
 deployment manifest
@@ -640,6 +640,10 @@ ROTO 主线维护 `FakeRagService` 和 `RemoteRagClient`，ROTO-KB 发布 JSON S
 
 ROTO-KB 不实现 LangGraph，不接收 solver job，不因检索命中触发求解器。
 
+### 18.1 联调前置阻塞项
+
+当前主线与本仓示例契约存在字段漂移：主线 `EvidenceSnippet.source` 对应本仓要求的 `source_uri/source_hash/document_version/security_scope`；主线 `degradation_reason` 为单值，而本仓还需要 `no_match` 与 `degradation_reasons[]`。在两仓共同提交 `contracts/` JSON Schema、OpenAPI 和四类 response fixture 前，不得把两边都标记为 `EvidencePackage v1` 已兼容。跨仓构建不得依赖 Windows 绝对路径；项目契约必须以 commit/SHA-256 快照或可访问的版本化契约包交付。
+
 ## 19. SDD 驱动开发规则
 
 每个任务按以下顺序交付：契约/fixture -> 失败测试 -> 最小实现 -> 集成测试 -> 文档/运行证据。PR 只处理一个可验收任务或一个紧密任务组，并在描述中填写 PRD/SDD 条目、测试证据、迁移/回滚影响和未解决风险。
@@ -669,6 +673,8 @@ G0 文档基线
 | ADR-004 | Qdrant + BM25 + depth=1 relations，RRF 融合 | accepted |
 | ADR-005 | staging release 评测后人工激活，默认不自动 activate | accepted |
 | ADR-006 | 内容可以后补，但 metadata/license/eval gate 同步执行 | accepted |
-| ADR-007 | V1 图谱只使用六组离线、许可明确的静态内容，不依赖付费图谱 API | accepted |
+| ADR-007 | V1 active 图谱只使用六组离线、许可边界可记录的静态内容，不依赖付费图谱 API | accepted |
+| ADR-008 | CORA/PropNet/MatOnto 先登记为 reference-only/link-and-map-only，不作为 V1 active 启动依赖 | accepted |
+| ADR-009 | 跨仓契约以 JSON Schema/OpenAPI/fixture 为真源，不依赖 Windows 外部路径 | accepted |
 
-首次真实索引前仍需确认：DashScope API key 地域、最终 Embedding 模型与维度、是否启用 DashScope LLM 辅助摘要/关系抽取。上述事项不影响当前 SDD 和空库契约开发。
+首次真实索引前仍需确认：跨仓契约字段并提交 fixture、DashScope API key 地域、最终 Embedding 模型与维度、是否启用 DashScope LLM 辅助摘要/关系抽取。上述事项不影响 G1 空库骨架，但契约字段未冻结会阻塞 KB-002/KB-601，模型/地域未确认会阻塞首次真实向量索引。

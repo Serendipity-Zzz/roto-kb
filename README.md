@@ -7,6 +7,7 @@ ROTO 的独立工程知识服务仓库。它与主线 `ROTO` 通过版本化 `Ev
 - 产品需求：[docs/PRD.md](docs/PRD.md)
 - 软件设计：[docs/SDD.md](docs/SDD.md)
 - 开发子任务：[docs/DEVELOPMENT-TASKS.md](docs/DEVELOPMENT-TASKS.md)
+- 前置条件：[docs/PRE-REQUISITES.md](docs/PRE-REQUISITES.md)
 - 图谱种子选型：[docs/GRAPH-SEED-SELECTION.md](docs/GRAPH-SEED-SELECTION.md)
 - 知识资源：[knowledge/manifest.yaml](knowledge/manifest.yaml)
 - 资源说明：[docs/RESOURCE-NOTES.md](docs/RESOURCE-NOTES.md)

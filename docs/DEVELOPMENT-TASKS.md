@@ -347,12 +347,30 @@ G6 出口：只在实际部署和隔离证据完成后成立；当前明确暂�
 
 ## 10. 当前需要用户补充的决策
 
-这些决策现在可以暂缓，不影响文档冻结：
+以下事项分为“现在必须完成”和“可以暂缓”。仓库创建已完成，不再作为前置项。
 
-1. 阿里云 API key 所属地域，以确定 DashScope compatible endpoint。
-2. 最终 Embedding 模型和维度；默认候选为 `text-embedding-v4`，实际能力在首次构建前 probe。
-3. 是否在 V1 开启 DashScope LLM 做摘要/关系抽取；默认关闭，先用确定性 metadata 和关系。
-4. 何时从 G0 进入 G1 实现，以及何时允许执行 G6 的服务器软件变更。
+### 10.1 现在必须完成
+
+1. **跨仓 EvidencePackage v1 对齐**：确认 `source` 与 `source_uri/source_hash/document_version/security_scope` 的最终字段，以及 `degradation_reason` 单值还是 `degradation_reasons[]`；补齐 `no_match`。先在 `roto-kb/contracts/` 固化 JSON Schema、OpenAPI、success/empty/degraded/error fixtures，再让 ROTO 主线离线消费。
+2. **项目契约交付**：把 ROTO PRD/SDD/T02 和实现所需 Schema 以 commit/SHA-256 快照或可访问版本化包交付给 ROTO-KB。`E:/Project/ROTO/...` 只能用于本机开发，不能成为 Linux 服务器的 source path。
+3. **仓库质量门**：保护 public 仓库 `main`，启用 CI 必过、secret scanning，并确认密钥、模型权重、生成索引不入库。
+
+### 10.2 首次真实索引前完成
+
+4. 阿里云 API key 所属地域，以确定 DashScope compatible endpoint。
+5. 最终 Embedding 模型和维度；默认候选为 `text-embedding-v4`，实际能力在首次构建前 probe。
+6. 是否在 V1 开启 DashScope LLM 做摘要/关系抽取；默认关闭，先用确定性 metadata 和关系。
+
+### 10.3 服务器部署前完成
+
+7. 允许对 `54.172.101.190` 做 Docker/nginx/systemd/目录变更，并完成旧服务只读基线与新服务隔离验收。
+8. 生成并安装 read/admin/Qdrant 三套不同 secret；确认域名/HTTPS 方案，或明确仅限临时 HTTP 验收。
+9. 修复部署用 SSH 私钥 ACL；Windows OpenSSH 当前会因 `ladder.pem` 对 Authenticated Users 可读而拒绝该密钥。
+
+### 10.4 可以后补
+
+10. CORA、PropNet、MatOnto 的文件导入和材料事实批次；三者已在 manifest 保留为 reference-only/link-and-map-only，不阻塞 G1-G4。
+11. 何时从 G0 进入 G1 实现，以及何时允许执行 G6 的服务器软件变更。
 
 ## 11. 任务交接模板
 

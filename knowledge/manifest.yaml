@@ -180,6 +180,43 @@ resources:
     local_path: graph/seeds/roto-domain-seed.v1.jsonl
     license: project-internal
     status: curated
+  - id: ieee1872-cora-reference
+    type: ontology-reference
+    url: https://github.com/srfiorini/IEEE1872-owl
+    revision: ffb6613350b28c3a710f8daf2a1e9e953ded7ed8
+    license: CC-BY-4.0-declared-in-upstream-README
+    attribution: IEEE 1872-2015 copyright notice; upstream IEEE1872-owl authors
+    status: reference-only
+    local_path: null
+    ingest_default: false
+    notes: >-
+      May be enabled as an offline allowlisted snapshot after preserving the
+      upstream notice; do not resolve owl:imports over the network.
+  - id: propnet-reference
+    type: materials-knowledge-graph-reference
+    url: https://github.com/materialsintelligence/propnet
+    revision: 770703fb4fc344f785f89c02f26b31ea5733d2bd
+    license: BSD-style-custom-upstream-LICENSE
+    attribution: The Regents of the University of California / Lawrence Berkeley National Laboratory
+    status: reference-only
+    local_path: null
+    ingest_default: false
+    notes: >-
+      Upstream LICENSE permits source and binary redistribution with notice;
+      review dependencies and bundled data separately. Do not execute models
+      during RAG indexing.
+  - id: matonto-reference
+    type: materials-ontology-reference
+    url: https://github.com/mospring/MatOnto
+    revision: 57788d2aac67b500ffd18584e0d39178798d20f3
+    license: no-clear-repository-license
+    attribution: upstream authors as identified in repository
+    status: link-and-map-only
+    local_path: null
+    ingest_default: false
+    notes: >-
+      Keep canonical links and internal URI mappings only until explicit
+      redistribution permission is confirmed.
 graph_deployment:
   manifest: graph/deployment-manifest.yaml
   runtime_paid_api_required: false
@@ -191,13 +228,23 @@ graph_deployment:
     - w3c-dcat3
     - w3c-shacl
     - roto-domain-seed-v1
+  optional_reference_sources:
+    - ieee1872-cora-reference
+    - propnet-reference
+    - matonto-reference
 project_contracts:
   - id: roto-prd
     external_path: E:/Project/ROTO/docs/PRD-LLM-RAG-Topology-Optimization-Agent.md
+    availability: local-development-only
+    deployment_snapshot_required: true
   - id: roto-sdd
     external_path: E:/Project/ROTO/docs/SDD-LLM-RAG-Topology-Optimization-Agent.md
+    availability: local-development-only
+    deployment_snapshot_required: true
   - id: roto-t02
     external_path: E:/Project/ROTO/docs/tasks/T02-RAG知识索引与参数校验.md
+    availability: local-development-only
+    deployment_snapshot_required: true
 research_inputs:
   - id: roto-external-graph-research
     external_path: E:/Project/ROTO/docs/外部知识图谱调研与ROTO知识库种子.md

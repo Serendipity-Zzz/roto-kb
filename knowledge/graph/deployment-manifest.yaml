@@ -46,6 +46,31 @@ selected:
     ingest_mode: validated-jsonl
     files:
       - seeds/roto-domain-seed.v1.jsonl
+optional_reference_sources:
+  - id: ieee1872-cora-reference
+    canonical_uri: https://github.com/srfiorini/IEEE1872-owl
+    revision: ffb6613350b28c3a710f8daf2a1e9e953ded7ed8
+    license: CC-BY-4.0-declared-in-upstream-README
+    ingest_mode: disabled-unless-explicitly-allowlisted
+    reason: >-
+      Useful robotics terminology; preserve IEEE copyright and CC BY notice,
+      and never resolve owl:imports over the network.
+  - id: propnet-reference
+    canonical_uri: https://github.com/materialsintelligence/propnet
+    revision: 770703fb4fc344f785f89c02f26b31ea5733d2bd
+    license: BSD-style-custom-upstream-LICENSE
+    ingest_mode: disabled-unless-explicitly-allowlisted
+    reason: >-
+      Useful unit-aware materials-property symbols; review bundled data and
+      dependencies separately and never execute models during indexing.
+  - id: matonto-reference
+    canonical_uri: https://github.com/mospring/MatOnto
+    revision: 57788d2aac67b500ffd18584e0d39178798d20f3
+    license: no-clear-repository-license
+    ingest_mode: link-and-map-only
+    reason: >-
+      Keep URI mappings and canonical links only until redistribution rights
+      are confirmed.
 excluded_from_v1:
   - id: materials-project-api
     reason: api-key-and-service-dependency
@@ -57,12 +82,6 @@ excluded_from_v1:
     reason: service-terms-and-online-api-dependency
   - id: oqmd
     reason: endpoint-health-and-service-terms-unresolved
-  - id: ieee1872-cora
-    reason: repository-has-no-declared-redistribution-license
-  - id: propnet
-    reason: license-noassertion
-  - id: matonto
-    reason: no-clear-repository-license
   - id: wikidata
     reason: full-dump-is-large-and-domain-noisy
   - id: aiida
