@@ -8,6 +8,9 @@ __pycache__/
 *.key
 *.log
 data/
+.roto-kb/
+*.egg-info/
+.tmp-*/
 dist/
 build/
 knowledge/generated/
