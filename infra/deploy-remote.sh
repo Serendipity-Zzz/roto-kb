@@ -3,20 +3,24 @@
 # Safe around the legacy kb-server namespace.
 set -euo pipefail
 
-APP_ROOT=/home/ec2-user/roto-kb
-DATA_ROOT=/data/roto-kb
-ETC_ROOT=/etc/roto-kb
-LOG_ROOT=/var/log/roto-kb
+APP_ROOT="${ROTO_KB_APP_ROOT:-/opt/roto-kb}"
+DATA_ROOT="${ROTO_KB_DATA_ROOT:-/var/lib/roto-kb}"
+ETC_ROOT="${ROTO_KB_ETC_ROOT:-/etc/roto-kb}"
+LOG_ROOT="${ROTO_KB_LOG_ROOT:-/var/log/roto-kb}"
+SERVICE_USER="${ROTO_KB_SERVICE_USER:-$(id -un)}"
+SERVICE_GROUP="${ROTO_KB_SERVICE_GROUP:-$(id -gn)}"
+PUBLIC_HOST="${ROTO_KB_PUBLIC_HOST:-kb.example.invalid}"
+TLS_SAN="${ROTO_KB_TLS_SAN:-DNS:${PUBLIC_HOST}}"
 STAMP=$(date -u +%Y%m%d-%H%M%S)
 
 echo "[1/10] create isolated directories"
 sudo mkdir -p "$APP_ROOT" "$DATA_ROOT/sources" "$DATA_ROOT/index/qdrant" "$ETC_ROOT/tls" "$LOG_ROOT"
-sudo chown -R ec2-user:ec2-user "$APP_ROOT" "$DATA_ROOT" "$LOG_ROOT"
+sudo chown -R "$SERVICE_USER:$SERVICE_GROUP" "$APP_ROOT" "$DATA_ROOT" "$LOG_ROOT"
 sudo chown -R root:root "$ETC_ROOT"
 sudo chmod 755 "$ETC_ROOT" "$ETC_ROOT/tls"
 
 echo "[2/10] refuse legacy path collisions"
-for p in /data/knowledge-base /home/ec2-user/.kb-server /home/ec2-user/kb-server; do
+for p in /data/knowledge-base /var/lib/legacy-kb-server /opt/legacy-kb-server; do
   case "$DATA_ROOT" in
     "$p"|"$p"/*) echo "refusing to use legacy path $p"; exit 1 ;;
   esac
@@ -65,16 +69,22 @@ fi
 if [[ -f /etc/nginx/conf.d/roto-kb.conf ]]; then
   sudo cp /etc/nginx/conf.d/roto-kb.conf "$ETC_ROOT/nginx-roto-kb.conf.bak-$STAMP"
 fi
-sudo cp "$APP_ROOT/infra/roto-kb.service" /etc/systemd/system/roto-kb.service
-sudo cp "$APP_ROOT/infra/nginx-roto-kb.conf" /etc/nginx/conf.d/roto-kb.conf
+sed \
+  -e "s|@ROTO_KB_SERVICE_USER@|$SERVICE_USER|g" \
+  -e "s|@ROTO_KB_SERVICE_GROUP@|$SERVICE_GROUP|g" \
+  -e "s|@ROTO_KB_APP_ROOT@|$APP_ROOT|g" \
+  -e "s|@ROTO_KB_DATA_ROOT@|$DATA_ROOT|g" \
+  "$APP_ROOT/infra/roto-kb.service" | sudo tee /etc/systemd/system/roto-kb.service >/dev/null
+sed "s|kb.example.invalid|$PUBLIC_HOST|g" \
+  "$APP_ROOT/infra/nginx-roto-kb.conf" | sudo tee /etc/nginx/conf.d/roto-kb.conf >/dev/null
 
 if [[ ! -f "$ETC_ROOT/tls/fullchain.pem" ]]; then
-  echo "[7/10] create temporary IP-SAN self-signed cert"
+  echo "[7/10] create temporary self-signed cert"
   sudo openssl req -x509 -nodes -newkey rsa:2048 -days 30 \
     -keyout "$ETC_ROOT/tls/privkey.pem" \
     -out "$ETC_ROOT/tls/fullchain.pem" \
-    -subj "/CN=54.172.101.190" \
-    -addext "subjectAltName=IP:54.172.101.190"
+    -subj "/CN=$PUBLIC_HOST" \
+    -addext "subjectAltName=$TLS_SAN"
   sudo chmod 644 "$ETC_ROOT/tls/fullchain.pem"
   sudo chmod 600 "$ETC_ROOT/tls/privkey.pem"
 else
@@ -107,8 +117,12 @@ if [ "$ready" -ne 1 ]; then
   sudo systemctl status roto-kb.service --no-pager || true
   exit 1
 fi
-curl -sk --fail --resolve 54.172.101.190:443:127.0.0.1 https://54.172.101.190/roto-kb/health
-echo
+if [[ -n "${ROTO_KB_PUBLIC_HOST:-}" ]]; then
+  curl -sk --fail --resolve "$PUBLIC_HOST:443:127.0.0.1" "https://$PUBLIC_HOST/roto-kb/health"
+  echo
+else
+  echo "public TLS smoke skipped; set ROTO_KB_PUBLIC_HOST for a real deployment"
+fi
 echo "[10/10] legacy namespace health (read-only isolation evidence)"
 curl -sS --max-time 5 http://127.0.0.1:8700/health || true
 echo

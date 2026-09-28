@@ -4,17 +4,17 @@ After=network.target
 
 [Service]
 Type=simple
-User=ec2-user
-Group=ec2-user
-WorkingDirectory=/home/ec2-user/roto-kb
+User=@ROTO_KB_SERVICE_USER@
+Group=@ROTO_KB_SERVICE_GROUP@
+WorkingDirectory=@ROTO_KB_APP_ROOT@
 EnvironmentFile=/etc/roto-kb/roto-kb.env
-ExecStart=/home/ec2-user/roto-kb/.venv/bin/python -m roto_kb serve --host 127.0.0.1 --port 8710
+ExecStart=@ROTO_KB_APP_ROOT@/.venv/bin/python -m roto_kb serve --host 127.0.0.1 --port 8710
 Restart=on-failure
 RestartSec=5
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
-ReadWritePaths=/data/roto-kb /var/log/roto-kb /home/ec2-user/roto-kb
+ReadWritePaths=@ROTO_KB_DATA_ROOT@ /var/log/roto-kb @ROTO_KB_APP_ROOT@
 StandardOutput=append:/var/log/roto-kb/roto-kb.log
 StandardError=append:/var/log/roto-kb/roto-kb.err.log
 

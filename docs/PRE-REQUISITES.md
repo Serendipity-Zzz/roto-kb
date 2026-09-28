@@ -21,24 +21,24 @@
 
 ## 服务器部署前
 
-- 明确允许对 `54.172.101.190` 做 Docker、nginx、systemd、目录和防火墙变更。
+- 明确允许对目标部署环境做 Docker、nginx、systemd、目录和防火墙变更；真实主机信息只保存在本地运维配置。
 - 只读检查 Docker、nginx、磁盘、端口和目标目录；记录旧 `kb-server` 的 health/进程/端口基线，不读取其知识内容。2026-09-09 预检已完成：旧服务 health `ok`（498 docs/21684 chunks），应用 `127.0.0.1:8700`，nginx 仅现有 80 配置，443 未监听，Docker 未运行，根分区可用约 11 GB。
-- 创建 `/home/ec2-user/roto-kb`、`/data/roto-kb`、`/etc/roto-kb`、`/var/log/roto-kb` 独立命名空间，并通过隔离脚本验收。
-- 修复部署用 SSH 私钥 ACL：当前 `ladder.pem` 对 `Authenticated Users` 可读，Windows OpenSSH 会拒绝使用；原文件不要提交仓库。
+- 创建独立的应用、数据、secret 和日志目录，并通过隔离脚本验收；示例可使用 `/opt/roto-kb`、`/var/lib/roto-kb`、`/etc/roto-kb`、`/var/log/roto-kb`。
+- 本地 SSH 私钥必须使用合规的权限和本地路径管理，不能提交仓库。
 
 ### 443 公网输入（部署前必须补齐）
 
-- 生产基址固定为 `https://54.172.101.190/roto-kb/`，不依赖域名 DNS。证书 SAN 必须包含 IP `54.172.101.190`；若 CA 不支持 IP 证书，只能使用自签名证书做临时 `curl -k` 验收，不能长期承载 Bearer token。
-- 提供已签发的 IP-SAN 证书与私钥；建议放在 `/etc/roto-kb/tls/`，证书 `0644`、私钥 `0600`、owner `root:root`。`ladder.pem` 是 SSH 私钥，不是 TLS 证书，不能复用。
+- 生产基址由本地 `ROTO_KB_PUBLIC_BASE_URL` 配置；证书 SAN 必须覆盖实际域名或地址。若 CA 不支持目标地址证书，只能使用自签名证书做临时 `curl -k` 验收，不能长期承载 Bearer token。
+- 提供与实际部署地址匹配的证书与私钥；建议放在 `/etc/roto-kb/tls/`，证书 `0644`、私钥 `0600`、owner `root:root`。SSH 私钥与 TLS 私钥分开管理，不能复用。
 - AWS Security Group 入站只放行 TCP 443；TCP 80 仅在使用 HTTP-01 或需要跳转时临时放行。UFW（如启用）同步设置 `allow 443/tcp`，不放行 8710/6334。
-- 旧 `kb-server` 已占用根路径/80 时，先保留旧 server block；ROTO-KB 只新增独立 443 `server_name 54.172.101.190` 和 `/roto-kb/` location。80 不改代理关系，不做依赖域名的 ACME challenge。
+- 旧服务已占用根路径/80 时，先保留旧 server block；ROTO-KB 只新增独立 443 `server_name` 和 `/roto-kb/` location。80 不改代理关系，不做依赖域名的 ACME challenge。
 - nginx 配置文件固定为 `/etc/nginx/sites-available/roto-kb.conf`，启用链接为 `/etc/nginx/sites-enabled/roto-kb.conf`；证书替换后执行 `nginx -t && systemctl reload nginx`。
 
 这些输入未齐之前可以继续 G1-G5 的本地 fake/fixture 开发，但不能宣称公网 443 已上线。
 
 ## 公网生产前
 
-- 使用 `https://54.172.101.190/roto-kb/` 并启用 HTTPS；IP + HTTP 仅用于受限临时验收，不能长期承载 Bearer Token。
+- 使用本地配置的 `ROTO_KB_PUBLIC_BASE_URL` 并启用 HTTPS；HTTP 仅用于受限临时验收，不能长期承载 Bearer Token。
 - 完成 Qdrant snapshot、source/manifest、BM25/relations、registry 的同 release 备份和恢复演练。
 - 完成新旧服务独立停止、reload、activate、rollback 验收；旧服务数据、进程、端口、目录和日志不变。
 

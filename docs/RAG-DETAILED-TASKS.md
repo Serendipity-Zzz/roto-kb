@@ -264,20 +264,20 @@ G1-G4 可以先使用 fake provider 和 fixture；G6 需要用户明确允许服
 
 - 依赖：KB-402、用户授权。
 - 输出：Docker/nginx/systemd/python/disk/port/目录基线。
-- 当前证据（2026-09-09）：旧 `kb-server.service` health 为 `ok`（498 docs/21684 chunks），应用监听 `127.0.0.1:8700`；nginx 现有 `/etc/nginx/conf.d/kb-server.conf` 仅监听 80 并代理旧根路径；443/8710/6334 未监听；Docker 未运行；根分区可用约 11 GB。AWS CLI 无凭据，ec2-user 无免密 sudo，因此 Security Group、UFW 和 nginx 变更留到 KB-603 的授权部署窗口。
+- 当前证据应在使用者自己的目标环境中采集：记录旧 `kb-server.service` health、应用监听、nginx、443/8710/6334、Docker、磁盘和权限基线；Security Group、UFW 和 nginx 变更必须留到授权部署窗口。
 - 验收：不读取旧知识内容；记录旧服务 health/count/process/port/path；目标端口为 443、8710、6334；目标目录不存在冲突；输出 AWS Security Group/UFW 当前规则和 nginx 监听归属。
 
 ### KB-602 Qdrant、systemd 和目录初始化
 
 - 依赖：KB-601、KB-503。
-- 输出：固定 digest Compose、`roto-kb.service`、`roto-kb-lint.service`、`roto-kb-lint.timer`、`/home/ec2-user/roto-kb`、`/data/roto-kb`、`/etc/roto-kb`、`/var/log/roto-kb`；timer 使用 `OnCalendar=weekly`，执行前校验目标路径。
+- 输出：固定 digest Compose、`roto-kb.service`、`roto-kb-lint.service`、`roto-kb-lint.timer`、以及由本地配置提供的应用、数据、secret、日志目录；timer 使用 `OnCalendar=weekly`，执行前校验目标路径。
 - 验收：旧服务目录、unit、端口、collection 不被触碰；Qdrant 只 loopback。
 
 ### KB-603 nginx 443/TLS 与防火墙
 
 - 依赖：KB-602、IP-SAN 证书或明确的临时自签名验收方式。
-- 输出：`/etc/nginx/sites-available/roto-kb.conf`、对应 `sites-enabled` 链接、`server_name 54.172.101.190` 的 443 server block、80 保留旧服务的策略、TLS policy、firewall/security-group 规则、证书替换 hook。
-- 验收：生产基址为 `https://54.172.101.190/roto-kb/`；TLS 1.2+、证书 SAN 包含 IP、HSTS、body/timeout/rate limits；80 不代理带 Authorization 的业务请求且旧根路径不变；`/roto-kb/health` 可探活；AWS/UFW 不暴露 8710/6334。自签名证书只能标记为临时验收，不得标记生产完成。
+- 输出：`/etc/nginx/sites-available/roto-kb.conf`、对应 `sites-enabled` 链接、由本地配置渲染的 443 server block、80 保留旧服务的策略、TLS policy、firewall/security-group 规则、证书替换 hook。
+- 验收：生产基址由本地配置提供；TLS 1.2+、证书 SAN 覆盖实际部署地址、HSTS、body/timeout/rate limits；80 不代理带 Authorization 的业务请求且旧根路径不变；`/roto-kb/health` 可探活；AWS/UFW 不暴露 8710/6334。自签名证书只能标记为临时验收，不得标记生产完成。
 - 回滚：移除仅 ROTO-KB nginx include，旧根路径不变。
 
 ### KB-604 Backup/restore 与 isolation check
@@ -342,4 +342,4 @@ KB-000..004
   -> KB-801..803
 ```
 
-可并行：KB-203/204、KB-303/304、KB-603/605、KB-701。不可并行：契约冻结前不得实现跨仓联调；服务器 443 变更前不得配置生产 secret；active release 评测前不得开放公网写接口。公网基址固定为 `https://54.172.101.190/roto-kb/`，不依赖域名。
+可并行：KB-203/204、KB-303/304、KB-603/605、KB-701。不可并行：契约冻结前不得实现跨仓联调；服务器 443 变更前不得配置生产 secret；active release 评测前不得开放公网写接口。公网基址必须由使用者本地配置，不写入公开样例。

@@ -7,10 +7,10 @@ description: 检索 ROTO 工程知识库（拓扑优化、FEniTop、Gmsh/meshio/
 
 ## 服务信息
 
-ROTO-KB 提供渐进式加载接口（browse → search → fetch/graph）。公网基址默认 `https://54.172.101.190/roto-kb`（nginx 443 反代至本机 `127.0.0.1:8710`）。本地开发可覆盖：
+ROTO-KB 提供渐进式加载接口（browse → search → fetch/graph）。公开样例不绑定真实部署地址；请在本地配置 `ROTO_KB_SERVER`（nginx 443 反代至本机 `127.0.0.1:8710`）：
 
 ```bash
-ROTO_KB_SERVER="https://54.172.101.190/roto-kb"   # 远端部署（默认）
+ROTO_KB_SERVER="https://kb.example.invalid/roto-kb" # 替换为你自己的部署地址
 # 或
 ROTO_KB_SERVER="http://127.0.0.1:8710"            # 本地开发
 ```
@@ -36,7 +36,7 @@ curl -sk "$ROTO_KB_SERVER/health"
 curl -sk "$ROTO_KB_SERVER/help"
 ```
 
-> 若证书为临时自签名 IP-SAN，使用 `curl -sk`；正式 CA 证书就绪后去掉 `-k`。不要把 Bearer token 长期放在明文 HTTP 上。
+> 若证书为临时自签名证书，验收时可使用 `curl -sk`；正式 CA 证书就绪后去掉 `-k`。不要把 Bearer token 长期放在明文 HTTP 上。
 
 ## 知识库覆盖的领域
 
@@ -170,7 +170,7 @@ EvidencePackage 是证据，不是可直接写入求解器的最终参数。
 | `POST /releases/{id}/activate` | 激活 | “激活这个 release” |
 | `POST /releases/{id}/rollback` | 回滚 | “回滚上一版” |
 
-以上全部需要 admin token。Qdrant 默认本机嵌入式模式（`QDRANT_MODE=embedded`），数据在服务器 `/data/roto-kb/index/qdrant/`，不对公网暴露。
+以上全部需要 admin token。Qdrant 默认本机嵌入式模式（`QDRANT_MODE=embedded`），数据在部署机的私有数据目录中，不对公网暴露。
 
 ## 常见调用模式速查
 

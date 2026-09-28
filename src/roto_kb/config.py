@@ -4,7 +4,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-FORBIDDEN_PATHS = ("/data/knowledge-base", "/home/ec2-user/.kb-server", "/home/ec2-user/kb-server")
+FORBIDDEN_PATHS = ("/data/knowledge-base", "/var/lib/legacy-kb-server", "/opt/legacy-kb-server")
 
 
 class ConfigurationError(ValueError):
