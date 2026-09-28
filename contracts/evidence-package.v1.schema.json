@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "roto-kb/evidence-package.v1",
+  "type": "object",
+  "required": ["schema_version", "query", "index_release_id", "results", "degraded"],
+  "properties": {
+    "schema_version": {"const": "evidence-package.v1"},
+    "query": {"type": "string"},
+    "index_release_id": {"type": "string"},
+    "results": {"type": "array"},
+    "degraded": {"type": "boolean"},
+    "degradation_reasons": {"type": "array", "items": {"type": "string"}},
+    "no_match": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

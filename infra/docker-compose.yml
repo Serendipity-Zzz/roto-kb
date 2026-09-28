@@ -1,0 +1,10 @@
+services:
+  qdrant-roto-kb:
+    image: qdrant/qdrant:v1.12.5
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6334:6333"
+    volumes:
+      - /data/roto-kb/qdrant:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: "6335"

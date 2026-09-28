@@ -365,9 +365,9 @@ G6 出口：只在实际部署和隔离证据完成后成立；当前明确暂�
 
 ### 10.3 服务器部署前完成
 
-7. 允许对 `54.172.101.190` 做 Docker/nginx/systemd/目录变更，并完成旧服务只读基线与新服务隔离验收。
+7. 允许对目标部署环境做 Docker/nginx/systemd/目录变更，并完成旧服务只读基线与新服务隔离验收。
 8. 生成并安装 read/admin/Qdrant 三套不同 secret；确认域名/HTTPS 方案，或明确仅限临时 HTTP 验收。
-9. 修复部署用 SSH 私钥 ACL；Windows OpenSSH 当前会因 `ladder.pem` 对 Authenticated Users 可读而拒绝该密钥。
+9. 在本地准备权限合规的 SSH 私钥；私钥文件名和路径不写入仓库。
 
 ### 10.4 可以后补
 
@@ -420,7 +420,7 @@ G6 出口：只在实际部署和隔离证据完成后成立；当前明确暂�
 
 ### D-014 443 TLS 与公网边界
 
-依赖：KB-011、用户提供 IP-SAN 证书或临时自签名验收方式。输出：nginx 443 配置、80 旧服务保留策略、firewall/security-group 变更说明。验收：仅 443 对公网提供 ROTO-KB；8710/6334 loopback；TLS 1.2+、证书 SAN 包含 `54.172.101.190`、HSTS、限流、请求体/超时限制；80 不代理 ROTO-KB 业务 Authorization；管理路由仍需 admin token。
+依赖：KB-011、用户提供与实际部署地址匹配的证书或临时自签名验收方式。输出：nginx 443 配置、80 旧服务保留策略、firewall/security-group 变更说明。验收：仅 443 对公网提供 ROTO-KB；8710/6334 loopback；TLS 1.2+、证书 SAN 覆盖实际部署地址、HSTS、限流、请求体/超时限制；80 不代理 ROTO-KB 业务 Authorization；管理路由仍需 admin token。
 
 ### D-015 部署、隔离和恢复演练
 

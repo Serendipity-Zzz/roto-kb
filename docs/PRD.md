@@ -45,7 +45,7 @@ ROTO 主线包含 LangGraph/Workflow、参数确认、几何生成、拓扑优�
 
 本次已通过只读检查确认：
 
-- 服务器：`54.172.101.190`，SSH 用户：`ec2-user`。
+- 目标服务器、SSH 用户和凭据由使用者在本地部署配置中维护，仓库不记录真实值。
 - `kb-server.service` 已由 systemd 管理，当前运行正常。
 - 服务进程监听 `127.0.0.1:8700`，nginx 对外提供 HTTP 80 端口。
 - 远端现有服务、代码、配置、原始资料和索引均属于第三方部署，只能作为端口与资源冲突检查对象。
@@ -55,8 +55,8 @@ ROTO-KB 采用以下独立资源：
 
 | 资源 | ROTO-KB | 现有第三方服务 | 隔离要求 |
 |---|---|---|---|
-| 代码目录 | `/home/ec2-user/roto-kb/` | `/home/ec2-user/kb-server/` | 不共享 |
-| Python venv | `/home/ec2-user/.roto-kb-venv/` | `/home/ec2-user/.kb-venv/` | 不共享 |
+| 代码目录 | `/opt/roto-kb/`（示例） | `/opt/legacy-kb-server/`（示例） | 不共享 |
+| Python venv | `/opt/roto-kb/.venv/`（示例） | `/opt/legacy-kb-server/.venv/`（示例） | 不共享 |
 | systemd unit | `roto-kb.service` | `kb-server.service` | 不同服务名 |
 | 应用端口 | `127.0.0.1:8710` | `127.0.0.1:8700` | 不同监听端口 |
 | 原始知识 | `/data/roto-kb/sources/` | `/data/knowledge-base/` | 不共享、不扫描父目录 |
@@ -103,7 +103,7 @@ ROTO-KB RemoteRagClient
 |---|---|---|
 | Fake | Loop 单元测试 | 固定返回合法 `EvidencePackage` |
 | Local | 离线开发和契约测试 | 当前 `backend/app/rag` 的本地实现或本地 kb-server |
-| Remote | 集成/生产 | `RemoteRagClient` 调用 `https://54.172.101.190/roto-kb/` |
+| Remote | 集成/生产 | `RemoteRagClient` 调用本地配置的 `ROTO_KB_SERVER` |
 
 通过 `ROTO_RAG_MODE` 配置切换，主线代码不感知底层实现。
 
@@ -256,7 +256,7 @@ class RagService(Protocol):
 | POST | `/releases/{id}/activate` | 评测通过后原子激活 |
 | POST | `/releases/{id}/rollback` | 回滚上一 release |
 
-公网接口基址为 `https://54.172.101.190/roto-kb/`；在 IP-SAN 证书就绪前，只允许受限临时验收，不把 Bearer Token 长期放在 IP + HTTP 上。查询接口使用 `Authorization: Bearer <ROTO_KB_READ_TOKEN>`；reload/release 等写接口使用权限独立的 `ROTO_KB_ADMIN_TOKEN`。
+公网接口基址由本地 `ROTO_KB_SERVER` 配置；在受信任证书就绪前，只允许受限临时验收，不把 Bearer Token 长期放在明文 HTTP 上。查询接口使用 `Authorization: Bearer <ROTO_KB_READ_TOKEN>`；reload/release 等写接口使用权限独立的 `ROTO_KB_ADMIN_TOKEN`。
 
 ### 7.4 鉴权与错误契约
 
@@ -356,7 +356,7 @@ Embedding 不可用时使用已有向量 + BM25；Qdrant 不可用时使用 BM25
 
 ## 10. 安全与运维
 
-- `ladder.pem` 仅用于本地 SSH 操作，必须加入 `.gitignore` 并从 Git 历史排除；如曾提交过则立即轮换密钥。
+- SSH 私钥仅用于本地 SSH 操作，必须加入 `.gitignore` 并从 Git 历史排除；如曾提交过则立即轮换密钥。
 - 远端 API Key 只保存在服务器 secret/config，不复制到本地知识目录、PRD、日志或镜像。
 - 公网入口由 nginx 在 TCP 443 提供 `/roto-kb/` 路径；80 保留旧服务根路径，不代理 ROTO-KB；8710、6334 仅监听 loopback，不直接暴露公网。TLS 最低启用 TLS 1.2，证书替换/续期失败必须告警。
 - 原始知识目录、Qdrant、BM25、release manifest 必须分别备份；恢复后先校验 SHA-256，再激活 release。
@@ -371,7 +371,7 @@ Embedding 不可用时使用已有向量 + BM25；Qdrant 不可用时使用 BM25
 |---|---|---|---:|---|
 | `ROTO_KB_HOST` | `127.0.0.1` | `127.0.0.1` | 否 | 应用禁止直接公网监听 |
 | `ROTO_KB_PORT` | `8710` | `8710` | 否 | nginx 上游端口 |
-| `ROTO_KB_PUBLIC_BASE_URL` | `http://localhost:8710` | `https://54.172.101.190/roto-kb` | 否 | 生产公网基址；证书必须包含 IP SAN |
+| `ROTO_KB_PUBLIC_BASE_URL` | `http://localhost:8710` | `https://<your-kb-host>/roto-kb` | 否 | 生产公网基址；证书必须覆盖实际部署地址 |
 | `ROTO_KB_SOURCE_PATH` | `./knowledge` | `/data/roto-kb/sources` | 否 | 只扫描该目录 |
 | `ROTO_KB_INDEX_PATH` | `./data/index` | `/data/roto-kb/index` | 否 | BM25、relations、release manifest |
 | `QDRANT_URL` | `http://127.0.0.1:6334` | `http://127.0.0.1:6334` | 否 | 宿主机映射端口 |
@@ -494,8 +494,8 @@ pull request
 
 4. 在首次索引前确认阿里云账号地域、最终 Embedding 模型和维度；默认建议中国内地 endpoint + `text-embedding-v4`，维度由 capability probe 校验。不要在聊天中粘贴 API key。
 5. 确认是否由本任务自动生成 `ROTO_KB_READ_TOKEN`、`ROTO_KB_ADMIN_TOKEN` 和 `QDRANT_API_KEY` 并直接写入服务器 `/etc/roto-kb/roto-kb.env`；明文不会写入仓库或回复。
-6. 确认当前阶段是只完成文档/契约和 G1-G4 本地实现，还是继续实现并部署 G5-G6。服务器变更前需完成 Docker/nginx/磁盘/端口只读预检；本地 `ladder.pem` 当前 ACL 过宽，OpenSSH 会拒绝使用，需要你在部署时收紧密钥权限或提供合规的 SSH 凭据。
-7. 使用公网 IP 直接访问时，提供包含 `54.172.101.190` IP SAN 的受信任 TLS 证书及私钥，或明确仅做临时自签名验收。没有受信任 IP 证书前，不启用长期公网 Bearer Token 服务。`ladder.pem` 仅用于 SSH，不可作为 HTTPS 证书。
+6. 确认当前阶段是只完成文档/契约和 G1-G4 本地实现，还是继续实现并部署 G5-G6。服务器变更前需完成 Docker/nginx/磁盘/端口只读预检；部署凭据由使用者在本地以合规权限提供。
+7. 使用公网地址时，提供覆盖实际部署地址的受信任 TLS 证书及私钥，或明确仅做临时自签名验收。没有受信任证书前，不启用长期公网 Bearer Token 服务；SSH 私钥不可作为 HTTPS 证书。
 
 ### 13.3 可以后补（不阻塞空库和契约开发）
 

@@ -4,24 +4,26 @@ isolation:
   legacy_remote_kb_imported: false
   forbidden_remote_paths:
     - /data/knowledge-base/
-    - /home/ec2-user/.kb-server/
-    - /home/ec2-user/kb-server/
+    - /var/lib/legacy-kb-server/
+    - /opt/legacy-kb-server/
   local_repository: E:/Project/ROTO-KB
   remote_repository: https://github.com/Serendipity-Zzz/roto-kb
 deployment:
-  host: 54.172.101.190
-  user: ec2-user
-  code_path: /home/ec2-user/roto-kb/
-  source_path: /data/roto-kb/sources/
-  index_path: /data/roto-kb/index/
+  host: "<private-deployment-host>"
+  user: "<private-deployment-user>"
+  code_path: "<ROTO_KB_APP_ROOT>/"
+  source_path: "<ROTO_KB_DATA_ROOT>/sources/"
+  index_path: "<ROTO_KB_DATA_ROOT>/index/"
   service: roto-kb.service
   app_port: 8710
-  qdrant_port: 6334
+  qdrant_mode: embedded
+  qdrant_path: "<ROTO_KB_DATA_ROOT>/index/qdrant"
+  qdrant_port: null
   public_path: /roto-kb/
   public_port: 443
-  public_base_url: https://54.172.101.190/roto-kb
+  public_base_url: https://kb.example.invalid/roto-kb
   tls_required_for_production: true
-  certificate_policy: ip-san-required
+  certificate_policy: ip-san-required-or-temporary-self-signed
   http_port_policy: legacy-root-preserved-no-roto-kb-proxy
 model_api:
   provider: alibaba-cloud-model-studio-dashscope

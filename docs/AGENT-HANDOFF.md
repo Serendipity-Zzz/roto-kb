@@ -39,19 +39,19 @@ V1 active 图谱固定为 QUDT、IOF Core、W3C PROV-O/DCAT3/SHACL 和 ROTO seed
 
 ## 4. 服务器上下文
 
-- 公网 IP：`54.172.101.190`，SSH 用户：`ec2-user`。
-- SSH 私钥：`E:/Project/ROTO/ladder.pem`，仅用于 SSH 登录；不能当作 HTTPS 证书、RAG Bearer token、Qdrant API key 或 DashScope key，不能提交 Git。
-- 生产公网基址：`https://54.172.101.190/roto-kb/`。
+- 公开样例不记录真实公网地址、SSH 用户、私钥文件名或生产证书信息；这些内容由使用者在本地运维记录和 secret 管理系统中维护。
+- 示例公网基址：`https://kb.example.invalid/roto-kb/`；实际值通过本地 `ROTO_KB_SERVER` 配置。
 - 应用：`roto-kb.service`，仅监听 `127.0.0.1:8710`。
-- Qdrant：独立 Docker Server，宿主机仅 `127.0.0.1:6334`，数据 `/data/roto-kb/qdrant/`，collection 前缀 `roto_kb_`，alias `roto_kb_active`。
-- 代码、source、index、secret、日志：分别使用 `/home/ec2-user/roto-kb/`、`/data/roto-kb/sources/`、`/data/roto-kb/index/`、`/etc/roto-kb/`、`/var/log/roto-kb/`。
+- Qdrant：默认本机嵌入式模式（`QDRANT_MODE=embedded`），数据位于部署机私有数据目录，不对公网暴露；可选 Docker Server 仅 loopback `127.0.0.1:6334`。collection 前缀 `roto_kb_`，alias `roto_kb_active`。
+- Agent Skill：`docs/SKILL.md`（已同步到 `~/.claude/skills/roto-kb-lookup` 与 `~/.grok/skills/roto-kb-lookup`）。
+- 代码、source、index、secret、日志：分别使用部署机本地配置的应用、数据、secret 和日志目录；示例目录可按 `/opt/roto-kb/`、`/var/lib/roto-kb/`、`/etc/roto-kb/`、`/var/log/roto-kb/` 组织。
 - nginx：`/etc/nginx/sites-available/roto-kb.conf`，启用链接 `/etc/nginx/sites-enabled/roto-kb.conf`，443 终止 TLS 后只代理 `/roto-kb/`。
 - 80 端口现由第三方 `kb-server` 根路径使用；不得改写、停用或代理到 ROTO-KB。
 - 旧服务：`kb-server.service`、`127.0.0.1:8700`、旧目录和旧索引禁止读取/复制/修改。
 
-2026-09-09 只读预检：旧 health 为 `ok`（498 docs/21684 chunks）；nginx 现有配置仅监听 80；443/8710/6334 未监听；Docker 未运行；根分区可用约 11 GB；AWS CLI 无凭据；`ec2-user` 无免密 sudo。不要在缺少授权、证书和防火墙凭据时写入半成品生产配置。
+部署前应由使用者在自己的目标环境执行只读预检，确认端口、证书、防火墙、权限和旧服务边界；不要在缺少授权、证书和防火墙凭据时写入半成品生产配置。
 
-IP 直连生产必须使用包含 `54.172.101.190` 的 IP SAN 受信任证书。自签名证书只可用于受限 `curl -k` 临时验收，不能长期承载 Bearer token。
+生产必须使用与实际部署主机匹配的受信任证书。自签名证书只可用于受限 `curl -k` 临时验收，不能长期承载 Bearer token。
 
 ## 5. API 与模型约束
 
@@ -76,4 +76,3 @@ KB-000..004  文档、契约、来源和质量门
 ```
 
 内容可以后补：新增资料只需 manifest/checksum/license/eval gate、增量 build、评测和人工 activate，不需要重新部署应用。parser、chunk schema、Embedding 维度或检索算法变化必须提升 pipeline version 并全量重建。
-

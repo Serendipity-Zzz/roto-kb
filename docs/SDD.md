@@ -341,7 +341,7 @@ manifest/source directory
 
 ### 7.2 路径与格式
 
-允许根目录仅为配置的 `ROTO_KB_SOURCE_PATH`。解析 `Resolve-Path/realpath` 后必须仍位于允许根目录；拒绝符号链接逃逸、`..`、设备文件和远端挂载。明确拒绝：`/data/knowledge-base`、`/home/ec2-user/.kb-server`、`/home/ec2-user/kb-server`。
+允许根目录仅为配置的 `ROTO_KB_SOURCE_PATH`。解析 `Resolve-Path/realpath` 后必须仍位于允许根目录；拒绝符号链接逃逸、`..`、设备文件和远端挂载。明确拒绝：`/data/knowledge-base`、`/var/lib/legacy-kb-server`、`/opt/legacy-kb-server`。
 
 V1 parser：
 
@@ -605,7 +605,7 @@ Bearer read/admin token 只保存 hash，常量时间比较。Qdrant 使用独�
 
 ### 14.2 路径隔离
 
-所有读写脚本共享 `PathPolicy`，只允许以下根：`/home/ec2-user/roto-kb`、`/data/roto-kb`、`/var/log/roto-kb`、`/etc/roto-kb`。任何命中旧知识库目录、父目录扫描或未解析变量均 fail closed。
+所有读写脚本共享 `PathPolicy`，只允许使用者在本地配置的应用、数据、日志和 secret 根目录；示例根目录为 `/opt/roto-kb`、`/var/lib/roto-kb`、`/var/log/roto-kb`、`/etc/roto-kb`。任何命中旧知识库目录、父目录扫描或未解析变量均 fail closed。
 
 ### 14.3 并发与超时
 
@@ -638,15 +638,15 @@ Bearer read/admin token 只保存 hash，常量时间比较。Qdrant 使用独�
 
 ## 17. 部署与恢复设计
 
-生产采用 hybrid：`roto-kb.service` 管 FastAPI，Docker 管独立 Qdrant，nginx 在 TCP 443 终止 TLS 并代理 `/roto-kb/`。公网基址固定为 `https://54.172.101.190/roto-kb/`，证书必须包含 IP SAN `54.172.101.190`。Qdrant 映射 `127.0.0.1:6334 -> container:6333`，持久化到 `/data/roto-kb/qdrant`；应用监听 `127.0.0.1:8710`。nginx 配置固定为 `/etc/nginx/sites-available/roto-kb.conf`（启用链接 `/etc/nginx/sites-enabled/roto-kb.conf`），证书和私钥使用 `/etc/roto-kb/tls/` 的 root-only 文件。80 保留旧服务根路径，不代理 ROTO-KB 业务，不依赖域名 ACME challenge。
+生产采用 hybrid：`roto-kb.service` 管 FastAPI，Docker 管独立 Qdrant，nginx 在 TCP 443 终止 TLS 并代理 `/roto-kb/`。公网基址由本地配置提供，证书必须覆盖实际部署地址。Qdrant 映射 `127.0.0.1:6334 -> container:6333`，持久化到私有数据目录；应用监听 `127.0.0.1:8710`。nginx 配置固定为 `/etc/nginx/sites-available/roto-kb.conf`（启用链接 `/etc/nginx/sites-enabled/roto-kb.conf`），证书和私钥使用 `/etc/roto-kb/tls/` 的 root-only 文件。80 保留旧服务根路径，不代理 ROTO-KB 业务，不依赖域名 ACME challenge。
 
 防火墙边界：AWS Security Group 只允许 TCP 443（HTTP-01 续期窗口可临时允许 80）；若服务器启用 UFW，则只允许 `443/tcp`，不允许 8710/6334。应用与 Qdrant 永远绑定 loopback。证书续期使用 `certbot renew --deploy-hook "nginx -t && systemctl reload nginx"` 或等价 hook；续期失败进入告警，不自动切换到自签名证书。
 
 部署顺序：预检目录/端口/磁盘/Docker/443 -> 确认 DNS/SAN 和 Security Group/UFW -> 拉取固定代码和依赖 -> 配置 secret -> 配置证书和 nginx -> `nginx -t` -> 启动/校验 Qdrant -> 启动应用 -> empty/active smoke test -> HTTPS、证书链、HTTP 跳转和 nginx path 验证。代码部署不得自动 reload 或 activate 知识 release。
 
-运维单元固定为：`/etc/systemd/system/roto-kb.service`（应用）、`/etc/systemd/system/roto-kb-lint.service`（一次性巡检）和 `/etc/systemd/system/roto-kb-lint.timer`（`OnCalendar=weekly`，默认每 7 天）；timer 通过 `systemctl enable --now roto-kb-lint.timer` 启用。巡检 unit 使用 `/home/ec2-user/roto-kb/scripts/inspect_release.py`，工作目录和输出均限制在 `/data/roto-kb`、`/var/log/roto-kb`。
+运维单元固定为：`/etc/systemd/system/roto-kb.service`（应用）、`/etc/systemd/system/roto-kb-lint.service`（一次性巡检）和 `/etc/systemd/system/roto-kb-lint.timer`（`OnCalendar=weekly`，默认每 7 天）；timer 通过 `systemctl enable --now roto-kb-lint.timer` 启用。巡检 unit 使用部署机本地配置的应用路径，工作目录和输出均限制在 ROTO-KB 私有目录。
 
-部署验收必须证明：443 仅由 nginx 监听；8710/6334 只绑定 loopback；TLS 证书 SAN 覆盖 `54.172.101.190` IP；TLS 1.0/1.1 和弱密码套件被拒绝；缺少 read/admin token 分别返回 401/403；管理接口不会被匿名公网访问；80 不接受带 Authorization 的业务请求；旧 `kb-server` 的根路径、进程、端口和数据目录前后不变。
+部署验收必须证明：443 仅由 nginx 监听；8710/6334 只绑定 loopback；TLS 证书 SAN 覆盖实际部署地址；TLS 1.0/1.1 和弱密码套件被拒绝；缺少 read/admin token 分别返回 401/403；管理接口不会被匿名公网访问；80 不接受带 Authorization 的业务请求；旧 `kb-server` 的根路径、进程、端口和数据目录前后不变。
 
 备份按同一 release 打包 source manifest、BM25/relations、registry 和 Qdrant snapshot。恢复必须校验 hash、模型/维度和 eval smoke query；仅恢复 Qdrant snapshot 不构成完整恢复。
 
