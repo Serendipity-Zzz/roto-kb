@@ -4,6 +4,14 @@ ROTO 的独立工程知识服务仓库。它与主线 `ROTO` 通过版本化 `Ev
 
 远端仓库：`https://github.com/Serendipity-Zzz/roto-kb`
 
+## 公开样例与本地配置
+
+本仓库是可复用的 ROTO-KB 服务样例，不包含任何特定生产环境的地址、SSH 身份、证书、Token 或服务器私有路径。使用者应将自己的部署信息和 secret 保存在本地未提交的 env/config 文件中。
+
+- 本地开发：复制 `.env.example` 为 `.env`，按需设置 `ROTO_KB_SERVER`、`ROTO_KB_READ_TOKEN` 和 `ROTO_KB_ADMIN_TOKEN`。
+- 远程部署：先在目标主机本地设置 `ROTO_KB_APP_ROOT`、`ROTO_KB_DATA_ROOT`、`ROTO_KB_SERVICE_USER`、`ROTO_KB_PUBLIC_HOST` 等变量，再运行 `infra/deploy-remote.sh`。
+- SSH 私钥、TLS 私钥、生产 Token 和真实公网地址不得写入仓库、Skill、Issue、PR 描述或日志。
+
 - 产品需求：[docs/PRD.md](docs/PRD.md)
 - 软件设计：[docs/SDD.md](docs/SDD.md)
 - 开发子任务：[docs/DEVELOPMENT-TASKS.md](docs/DEVELOPMENT-TASKS.md)
